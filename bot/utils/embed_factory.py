@@ -1,4 +1,3 @@
-
 """
 Emerald's Killfeed - Embed Factory
 Creates consistent, themed embeds with proper thumbnail placement and no emojis
@@ -20,7 +19,7 @@ class EmbedFactory:
     - Consistent color theming
     - File attachments for assets
     """
-    
+
     # Theme colors
     COLORS = {
         'connection': 0x00d38a,  # Green for connections
@@ -38,10 +37,10 @@ class EmbedFactory:
         'warning': 0xf39c12,    # Orange for warnings
         'info': 0x3498db        # Blue for info
     }
-    
+
     # Asset paths
     ASSETS_PATH = Path('./assets')
-    
+
     # Asset mappings
     ASSETS = {
         'connection': 'Connections.png',
@@ -336,12 +335,12 @@ class EmbedFactory:
     def _get_themed_message(cls, message_type: str, index: int = None) -> Tuple[str, str]:
         """Get a themed message for the given type"""
         import random
-        
+
         messages = cls.THEMED_MESSAGES.get(message_type, [("System Message", "Event occurred")])
-        
+
         if index is not None and 0 <= index < len(messages):
             return messages[index]
-        
+
         # Return random themed message
         return random.choice(messages)
 
@@ -352,10 +351,10 @@ class EmbedFactory:
             # Determine if join or leave
             is_join = 'arrive' in data.get('title', '').lower() or 'reinforcements' in data.get('title', '').lower()
             message_type = 'connection_join' if is_join else 'connection_leave'
-            
+
             # Get themed message
             title, description = cls._get_themed_message(message_type)
-            
+
             # Create embed
             color = cls.COLORS['connection']
             embed = discord.Embed(
@@ -364,26 +363,26 @@ class EmbedFactory:
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
-            
+
             # Add fields
             player_name = data.get('player_name', 'Unknown Player')
             platform = data.get('platform', 'Unknown')
             server_name = data.get('server_name', 'Unknown Server')
-            
+
             embed.add_field(name="Player", value=player_name, inline=True)
             embed.add_field(name="Platform", value=platform, inline=True)
             embed.add_field(name="Server", value=server_name, inline=True)
-            
+
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path('connection')
             file_attachment = None
             if asset_path and asset_path.exists():
                 file_attachment = discord.File(str(asset_path), filename=asset_filename)
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed, file_attachment
-            
+
         except Exception as e:
             logger.error(f"Failed to build connection embed: {e}")
             return cls._create_fallback_embed("Connection Event", "Player activity recorded")
@@ -393,10 +392,10 @@ class EmbedFactory:
         """Build themed killfeed embed"""
         try:
             import random
-            
+
             is_suicide = data.get('is_suicide', False)
             weapon = data.get('weapon', 'Unknown')
-            
+
             # Determine message type and atmospheric message type
             if is_suicide:
                 if 'fall' in weapon.lower() or 'falling' in weapon.lower():
@@ -408,14 +407,14 @@ class EmbedFactory:
             else:
                 message_type = 'killfeed_kill'
                 atmospheric_type = 'kill'
-            
+
             # Get themed message (use title only)
             title, _ = cls._get_themed_message(message_type)
-            
+
             # Get random atmospheric message
             atmospheric_messages = cls.KILLFEED_ATMOSPHERIC_MESSAGES.get(atmospheric_type, [])
             atmospheric_message = random.choice(atmospheric_messages) if atmospheric_messages else ""
-            
+
             # Create embed with appropriate color based on death type
             if is_suicide:
                 if 'fall' in weapon.lower() or 'falling' in weapon.lower():
@@ -430,13 +429,13 @@ class EmbedFactory:
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
-            
+
             if is_suicide:
                 # Suicide embed
                 player_name = data.get('victim', data.get('player_name', 'Unknown'))
                 embed.add_field(name="Player", value=player_name, inline=True)
                 embed.add_field(name="Cause", value=weapon, inline=True)
-                
+
                 # Use appropriate asset key
                 asset_key = 'falling' if 'fall' in weapon.lower() else 'suicide'
             else:
@@ -444,26 +443,26 @@ class EmbedFactory:
                 killer = data.get('killer', 'Unknown')
                 victim = data.get('victim', 'Unknown')
                 distance = data.get('distance', 0)
-                
+
                 embed.add_field(name="Killer", value=killer, inline=True)
                 embed.add_field(name="Victim", value=victim, inline=True)
                 embed.add_field(name="Weapon", value=weapon, inline=True)
-                
+
                 if distance and float(distance) > 0:
                     embed.add_field(name="Distance", value=f"{distance}m", inline=True)
-                    
+
                 asset_key = 'killfeed'
-            
+
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path(asset_key)
             file_attachment = None
             if asset_path and asset_path.exists():
                 file_attachment = discord.File(str(asset_path), filename=asset_filename)
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed, file_attachment
-            
+
         except Exception as e:
             logger.error(f"Failed to build killfeed embed: {e}")
             return cls._create_fallback_embed("Combat Event", "Combat activity recorded")
@@ -474,7 +473,7 @@ class EmbedFactory:
         try:
             # Get themed message
             title, description = cls._get_themed_message('mission_ready')
-            
+
             # Create embed
             level = data.get('level', 1)
             if level >= 5:
@@ -485,33 +484,33 @@ class EmbedFactory:
                 color = 0xffd700  # Gold for medium level
             else:
                 color = cls.COLORS['mission']  # Default teal for low level
-            
+
             embed = discord.Embed(
                 title=title,
                 description=description,
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
-            
+
             # Add mission details
             mission_id = data.get('mission_id', '')
             mission_name = cls.normalize_mission_name(mission_id)
             state = data.get('state', 'READY')
-            
+
             embed.add_field(name="Mission", value=mission_name, inline=False)
             embed.add_field(name="Difficulty Level", value=f"Level {level}", inline=True)
             embed.add_field(name="Status", value=state.replace('_', ' ').title(), inline=True)
-            
+
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path('mission')
             file_attachment = None
             if asset_path and asset_path.exists():
                 file_attachment = discord.File(str(asset_path), filename=asset_filename)
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed, file_attachment
-            
+
         except Exception as e:
             logger.error(f"Failed to build mission embed: {e}")
             return cls._create_fallback_embed("Mission Update", "Mission status changed")
@@ -525,11 +524,11 @@ class EmbedFactory:
         # Get the expected filename for this asset key
         asset_filename = cls.ASSETS.get(asset_key, 'main.png')
         asset_path = cls.ASSETS_PATH / asset_filename
-        
+
         # Try exact match first
         if asset_path.exists():
             return asset_path, asset_filename
-        
+
         # If exact match fails, try case-insensitive search
         if cls.ASSETS_PATH.exists():
             try:
@@ -538,7 +537,7 @@ class EmbedFactory:
                     if file_path.is_file() and file_path.name.lower() == target_filename_lower:
                         logger.info(f"✅ Found case-insensitive match: {file_path.name} for {asset_filename}")
                         return file_path, file_path.name
-                
+
                 # If still not found, try partial matching for common variations
                 base_name = asset_filename.lower().replace('.png', '')
                 for file_path in cls.ASSETS_PATH.iterdir():
@@ -547,16 +546,16 @@ class EmbedFactory:
                         if base_name in file_name_lower and file_name_lower.endswith('.png'):
                             logger.info(f"✅ Found partial match: {file_path.name} for {asset_filename}")
                             return file_path, file_path.name
-                            
+
             except Exception as e:
                 logger.warning(f"Error during case-insensitive asset search: {e}")
-        
+
         # Return fallback to main.png if nothing found
         fallback_path = cls.ASSETS_PATH / 'main.png'
         if fallback_path.exists():
             logger.warning(f"Using fallback asset main.png for missing {asset_filename}")
             return fallback_path, 'main.png'
-        
+
         # Return None if even fallback doesn't exist
         logger.error(f"No asset found for {asset_key}, fallback main.png also missing")
         return None, None
@@ -575,32 +574,32 @@ class EmbedFactory:
                 return await cls.build_killfeed_embed(data)
             elif embed_type == 'mission':
                 return await cls.build_mission_embed(data)
-            
+
             # For other embed types, get themed message
             message_type_map = {
                 'airdrop': 'airdrop_incoming',
                 'helicrash': 'helicrash_event', 
                 'trader': 'trader_arrival'
             }
-            
+
             message_type = message_type_map.get(embed_type)
             if message_type:
                 title, description = cls._get_themed_message(message_type)
             else:
                 title = data.get('title', 'System Event')
                 description = data.get('description', 'Event occurred')
-            
+
             # Get asset info with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path(embed_type)
-            
+
             # Create file attachment if asset exists
             file_attachment = None
             thumbnail_url = None
-            
+
             if asset_path and asset_path.exists():
                 file_attachment = discord.File(str(asset_path), filename=asset_filename)
                 thumbnail_url = f"attachment://{asset_filename}"
-            
+
             # Create base embed
             color = cls.COLORS.get(embed_type, cls.COLORS['info'])
             embed = discord.Embed(
@@ -609,11 +608,11 @@ class EmbedFactory:
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
-            
+
             # Set thumbnail on the right side
             if thumbnail_url:
                 embed.set_thumbnail(url=thumbnail_url)
-            
+
             # Add fields based on embed type
             if embed_type == 'airdrop':
                 cls._add_airdrop_fields(embed, data)
@@ -623,18 +622,13 @@ class EmbedFactory:
                 cls._add_trader_fields(embed, data)
             elif embed_type == 'vehicle':
                 cls._add_vehicle_fields(embed, data)
-            elif embed_type == 'bounty':
-                cls._add_bounty_fields(embed, data)
-            elif embed_type == 'economy':
-                cls._add_economy_fields(embed, data)
-            elif embed_type == 'leaderboard':
-                cls._add_leaderboard_fields(embed, data)
-            
+            # Note: bounty, economy, and leaderboard fields are handled in their respective builders
+
             # Set footer
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
-            
+
             return embed, file_attachment
-            
+
         except Exception as e:
             logger.error(f"Failed to build embed: {e}")
             # Return basic embed as fallback
@@ -653,7 +647,7 @@ class EmbedFactory:
         player_name = data.get('player_name', 'Unknown Player')
         platform = data.get('platform', 'Unknown')
         server_name = data.get('server_name', 'Unknown Server')
-        
+
         embed.add_field(name="Player", value=player_name, inline=True)
         embed.add_field(name="Platform", value=platform, inline=True)
         embed.add_field(name="Server", value=server_name, inline=True)
@@ -665,14 +659,14 @@ class EmbedFactory:
         level = data.get('level', 1)
         state = data.get('state', 'UNKNOWN')
         respawn_time = data.get('respawn_time')
-        
+
         # Normalize mission name
         mission_name = cls.normalize_mission_name(mission_id)
-        
+
         embed.add_field(name="Mission", value=mission_name, inline=False)
         embed.add_field(name="Difficulty Level", value=f"Level {level}", inline=True)
         embed.add_field(name="Status", value=state.replace('_', ' ').title(), inline=True)
-        
+
         if respawn_time:
             embed.add_field(name="Respawn Time", value=f"{respawn_time} seconds", inline=True)
 
@@ -683,14 +677,14 @@ class EmbedFactory:
         victim = data.get('victim_name', data.get('victim', 'Unknown'))
         weapon = data.get('weapon', 'Unknown')
         distance = data.get('distance', '0')
-        
+
         # Convert distance to string for comparison
         distance_str = str(distance)
-        
+
         embed.add_field(name="Killer", value=killer, inline=True)
         embed.add_field(name="Victim", value=victim, inline=True)
         embed.add_field(name="Weapon", value=weapon, inline=True)
-        
+
         # Safe distance comparison - convert to float for numeric check
         try:
             distance_num = float(distance_str)
@@ -704,7 +698,7 @@ class EmbedFactory:
         """Add fields for suicide embeds"""
         player_name = data.get('player_name', 'Unknown Player')
         cause = data.get('cause', 'Suicide')
-        
+
         embed.add_field(name="Player", value=player_name, inline=True)
         embed.add_field(name="Cause", value=cause, inline=True)
 
@@ -712,7 +706,7 @@ class EmbedFactory:
     def _add_fall_fields(cls, embed: discord.Embed, data: Dict[str, Any]):
         """Add fields for fall death embeds"""
         player_name = data.get('player_name', 'Unknown Player')
-        
+
         embed.add_field(name="Player", value=player_name, inline=True)
         embed.add_field(name="Cause", value="Falling Damage", inline=True)
 
@@ -721,7 +715,7 @@ class EmbedFactory:
         """Add fields for airdrop embeds"""
         location = data.get('location', 'Unknown Location')
         state = data.get('state', 'incoming')
-        
+
         embed.add_field(name="Location", value=location, inline=True)
         embed.add_field(name="Status", value=state.title(), inline=True)
 
@@ -729,7 +723,7 @@ class EmbedFactory:
     def _add_helicrash_fields(cls, embed: discord.Embed, data: Dict[str, Any]):
         """Add fields for helicrash embeds"""
         location = data.get('location', 'Unknown Location')
-        
+
         embed.add_field(name="Crash Site", value=location, inline=True)
         embed.add_field(name="Status", value="Crashed", inline=True)
 
@@ -737,7 +731,7 @@ class EmbedFactory:
     def _add_trader_fields(cls, embed: discord.Embed, data: Dict[str, Any]):
         """Add fields for trader embeds"""
         location = data.get('location', 'Unknown Location')
-        
+
         embed.add_field(name="Location", value=location, inline=True)
         embed.add_field(name="Status", value="Available", inline=True)
 
@@ -746,39 +740,9 @@ class EmbedFactory:
         """Add fields for vehicle embeds"""
         vehicle_type = data.get('vehicle_type', 'Unknown Vehicle')
         action = data.get('action', 'spawned')
-        
+
         embed.add_field(name="Vehicle", value=vehicle_type, inline=True)
         embed.add_field(name="Action", value=action.title(), inline=True)
-
-    @classmethod
-    def _add_bounty_fields(cls, embed: discord.Embed, data: Dict[str, Any]):
-        """Add fields for bounty embeds"""
-        target = data.get('target', 'Unknown')
-        amount = data.get('amount', 0)
-        poster = data.get('poster', 'Unknown')
-        
-        embed.add_field(name="Target", value=target, inline=True)
-        embed.add_field(name="Bounty", value=f"{amount:,}", inline=True)
-        embed.add_field(name="Posted By", value=poster, inline=True)
-
-    @classmethod
-    def _add_economy_fields(cls, embed: discord.Embed, data: Dict[str, Any]):
-        """Add fields for economy embeds"""
-        amount = data.get('amount', 0)
-        balance = data.get('balance', 0)
-        currency = data.get('currency', 'Emeralds')
-        
-        embed.add_field(name="Amount", value=f"{amount:,} {currency}", inline=True)
-        embed.add_field(name="New Balance", value=f"{balance:,} {currency}", inline=True)
-
-    @classmethod
-    def _add_leaderboard_fields(cls, embed: discord.Embed, data: Dict[str, Any]):
-        """Add fields for leaderboard embeds"""
-        server_name = data.get('server_name', 'Unknown Server')
-        stat_type = data.get('stat_type', 'kills')
-        
-        embed.add_field(name="Server", value=server_name, inline=True)
-        embed.add_field(name="Ranking By", value=stat_type.title(), inline=True)
 
     @classmethod
     def create_mission_embed(cls, title: str, description: str, mission_id: str, 
@@ -794,31 +758,31 @@ class EmbedFactory:
                 color = 0xffd700  # Gold for medium level
             else:
                 color = cls.COLORS['mission']  # Default teal for low level
-            
+
             embed = discord.Embed(
                 title=title,
                 description=description,
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
-            
+
             # Add mission details
             mission_name = cls.normalize_mission_name(mission_id)
             embed.add_field(name="Mission", value=mission_name, inline=False)
             embed.add_field(name="Difficulty Level", value=f"Level {level}", inline=True)
             embed.add_field(name="Status", value=state.replace('_', ' ').title(), inline=True)
-            
+
             if respawn_time:
                 embed.add_field(name="Respawn Time", value=f"{respawn_time} seconds", inline=True)
-            
+
             # Set thumbnail for mission with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path('mission')
             if asset_path and asset_path.exists():
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
-            
+
         except Exception as e:
             logger.error(f"Failed to create mission embed: {e}")
             return cls._create_fallback_embed("Mission Update", "Mission status has changed")
@@ -833,18 +797,18 @@ class EmbedFactory:
                 color=cls.COLORS['airdrop'],
                 timestamp=timestamp
             )
-            
+
             embed.add_field(name="Location", value=location, inline=True)
             embed.add_field(name="Status", value=state.title(), inline=True)
-            
+
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path('airdrop')
             if asset_path and asset_path.exists():
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
-            
+
         except Exception as e:
             logger.error(f"Failed to create airdrop embed: {e}")
             return cls._create_fallback_embed("Airdrop", "Supply drop detected")
@@ -859,18 +823,18 @@ class EmbedFactory:
                 color=cls.COLORS['helicrash'],
                 timestamp=timestamp
             )
-            
+
             embed.add_field(name="Crash Site", value=location, inline=True)
             embed.add_field(name="Status", value="Crashed", inline=True)
-            
+
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path('helicrash')
             if asset_path and asset_path.exists():
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
-            
+
         except Exception as e:
             logger.error(f"Failed to create helicrash embed: {e}")
             return cls._create_fallback_embed("Helicrash", "Helicopter crashed")
@@ -885,18 +849,18 @@ class EmbedFactory:
                 color=cls.COLORS['trader'],
                 timestamp=timestamp
             )
-            
+
             embed.add_field(name="Location", value=location, inline=True)
             embed.add_field(name="Status", value="Available", inline=True)
-            
+
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path('trader')
             if asset_path and asset_path.exists():
                 embed.set_thumbnail(url=f"attachment://{asset_filename}")
-            
+
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
-            
+
         except Exception as e:
             logger.error(f"Failed to create trader embed: {e}")
             return cls._create_fallback_embed("Trader", "Trader has arrived")
@@ -949,7 +913,7 @@ class EmbedFactory:
             'GA_Bochki_Mis_1': 'Barrel Storage Mission',
             'GA_Dubovoe_0_Mis_1': 'Dubovoe Resource Mission',
         }
-        
+
         return mission_mappings.get(mission_id, mission_id.replace('_', ' ').title())
 
     @classmethod
@@ -963,7 +927,7 @@ class EmbedFactory:
             'GA_Bunker_01_Mis1',
             'GA_KhimMash_Mis_02'
         ]
-        
+
         # Medium-high tier missions (level 4)
         medium_high_tier = [
             'GA_Airport_mis_03_SFPSACMission',
@@ -972,7 +936,7 @@ class EmbedFactory:
             'GA_Kamensk_Mis_3',
             'GA_Elevator_Mis_2'
         ]
-        
+
         # Medium tier missions (level 3)
         medium_tier = [
             'GA_Airport_mis_02_SFPSACMission',
@@ -985,7 +949,7 @@ class EmbedFactory:
             'GA_Elevator_Mis_1',
             'GA_Sawmill_03_Mis_01'
         ]
-        
+
         if mission_id in high_tier:
             return 5
         elif mission_id in medium_high_tier:

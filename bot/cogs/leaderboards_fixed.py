@@ -82,27 +82,27 @@ class LeaderboardsFixed(commands.Cog):
                 "guild_id": guild_id,
                 "linked_characters": player_name
             })
-            
+
             if not player_link:
                 return None
-                
+
             discord_id = player_link.get('discord_id')
             if not discord_id:
                 return None
-            
+
             # Now look up faction using Discord ID - ensure we're checking the members array properly
             faction_doc = await self.bot.db_manager.factions.find_one({
                 "guild_id": guild_id,
                 "members": {"$in": [discord_id]}
             })
-            
+
             if faction_doc:
                 # Return faction tag if available, otherwise faction name
                 faction_tag = faction_doc.get('faction_tag')
                 if faction_tag:
                     return faction_tag
                 return faction_doc.get('faction_name')
-            
+
             return None
         except Exception as e:
             logger.error(f"Error getting player faction for {player_name}: {e}")
@@ -211,13 +211,13 @@ class LeaderboardsFixed(commands.Cog):
                     "kills": {"$gte": 1}
                 }).limit(50)
                 all_players = await cursor.to_list(length=None)
-                
+
                 # Calculate KDR and sort in Python
                 for player in all_players:
                     kills = player.get('kills', 0)
                     deaths = player.get('deaths', 0)
                     player['kdr'] = kills / max(deaths, 1) if deaths > 0 else float(kills)
-                
+
                 players = sorted(all_players, key=lambda x: x['kdr'], reverse=True)[:10]
                 title = f"{random.choice(title_pools['kdr'])} - {server_name}"
                 description = descriptions['kdr']
@@ -248,19 +248,19 @@ class LeaderboardsFixed(commands.Cog):
                     "is_suicide": False,
                     "weapon": {"$nin": ["Menu Suicide", "Suicide", "Falling", "suicide_by_relocation"]}
                 })
-                
+
                 weapon_events = await cursor.to_list(length=None)
-                
+
                 # Group weapons in Python
                 weapon_stats = {}
                 for event in weapon_events:
                     weapon = event.get('weapon', 'Unknown')
                     killer = event.get('killer', 'Unknown')
-                    
+
                     if weapon not in weapon_stats:
                         weapon_stats[weapon] = {'kills': 0, 'top_killer': killer}
                     weapon_stats[weapon]['kills'] += 1
-                
+
                 # Sort and limit
                 weapons_data = []
                 for weapon, stats in sorted(weapon_stats.items(), key=lambda x: x[1]['kills'], reverse=True)[:10]:
@@ -312,25 +312,25 @@ class LeaderboardsFixed(commands.Cog):
                 # Get all factions for this guild first
                 factions_cursor = self.bot.db_manager.factions.find({"guild_id": guild_id})
                 all_factions = await factions_cursor.to_list(length=None)
-                
+
                 faction_stats = {}
-                
+
                 # Process each faction
                 for faction_doc in all_factions:
                     faction_name = faction_doc.get('faction_name')
                     faction_tag = faction_doc.get('faction_tag')
                     faction_display = faction_tag if faction_tag else faction_name
-                    
+
                     if not faction_display:
                         continue
-                    
+
                     faction_stats[faction_display] = {
                         'kills': 0, 
                         'deaths': 0, 
                         'members': set(),
                         'faction_name': faction_name
                     }
-                    
+
                     # Get stats for each member
                     for discord_id in faction_doc.get('members', []):
                         # Get player's linked characters
@@ -338,17 +338,17 @@ class LeaderboardsFixed(commands.Cog):
                             "guild_id": guild_id,
                             "discord_id": discord_id
                         })
-                        
+
                         if not player_link:
                             continue
-                            
+
                         # Get stats for each character
                         for character in player_link.get('linked_characters', []):
                             player_stat = await self.bot.db_manager.pvp_data.find_one({
                                 "guild_id": guild_id,
                                 "player_name": character
                             })
-                            
+
                             if player_stat:
                                 faction_stats[faction_display]['kills'] += player_stat.get('kills', 0)
                                 faction_stats[faction_display]['deaths'] += player_stat.get('deaths', 0)
