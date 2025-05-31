@@ -12,6 +12,7 @@ import json
 import hashlib
 import re
 import time
+import traceback
 from pathlib import Path
 
 # Clean up any conflicting discord modules before importing

@@ -61,7 +61,7 @@ class Stats(commands.Cog):
         
         return None
 
-    async def get_player_combined_stats(self, guild_id: int, player_characters: List[str]) -> Dict[str, Any]:
+    async def get_player_combined_stats(self, guild_id: int, player_characters: List[str], server_id: str = None) -> Dict[str, Any]:
         """Get combined stats across all servers for a player's characters"""
         # Initialize with safe defaults
         combined_stats = {
@@ -84,13 +84,19 @@ class Stats(commands.Cog):
                 logger.warning("No player characters provided for stats calculation")
                 return combined_stats
 
-            # Get stats from all servers
+            # Get stats from all servers or specific server
             for character in player_characters:
                 try:
-                    cursor = self.bot.db_manager.pvp_data.find({
+                    query = {
                         'guild_id': guild_id,
                         'player_name': character
-                    })
+                    }
+                    
+                    # Add server filter if specified
+                    if server_id:
+                        query['server_id'] = server_id
+                    
+                    cursor = self.bot.db_manager.pvp_data.find(query)
 
                     async for server_stats in cursor:
                         if not isinstance(server_stats, dict):
@@ -121,12 +127,12 @@ class Stats(commands.Cog):
 
             # Get weapon statistics and rivals/nemesis
             try:
-                await self._calculate_weapon_stats(guild_id, player_characters, combined_stats)
+                await self._calculate_weapon_stats(guild_id, player_characters, combined_stats, server_id)
             except Exception as weapon_error:
                 logger.error(f"Error calculating weapon stats: {weapon_error}")
 
             try:
-                await self._calculate_rivals_nemesis(guild_id, player_characters, combined_stats)
+                await self._calculate_rivals_nemesis(guild_id, player_characters, combined_stats, server_id)
             except Exception as rival_error:
                 logger.error(f"Error calculating rivals/nemesis: {rival_error}")
 
@@ -139,17 +145,23 @@ class Stats(commands.Cog):
             return combined_stats
 
     async def _calculate_weapon_stats(self, guild_id: int, player_characters: List[str], 
-                                    combined_stats: Dict[str, Any]):
+                                    combined_stats: Dict[str, Any], server_id: str = None):
         """Calculate weapon statistics from kill events (excludes suicides)"""
         try:
             weapon_counts = {}
 
             for character in player_characters:
-                cursor = self.bot.db_manager.kill_events.find({
+                query = {
                     'guild_id': guild_id,
                     'killer': character,
                     'is_suicide': False  # Only count actual PvP kills for weapon stats
-                })
+                }
+                
+                # Add server filter if specified
+                if server_id:
+                    query['server_id'] = server_id
+                
+                cursor = self.bot.db_manager.kill_events.find(query)
 
                 async for kill_event in cursor:
                     weapon = kill_event.get('weapon', 'Unknown')
@@ -165,7 +177,7 @@ class Stats(commands.Cog):
             logger.error(f"Failed to calculate weapon stats: {e}")
 
     async def _calculate_rivals_nemesis(self, guild_id: int, player_characters: List[str], 
-                                      combined_stats: Dict[str, Any]):
+                                      combined_stats: Dict[str, Any], server_id: str = None):
         """Calculate rival (most killed) and nemesis (killed by most)"""
         try:
             kills_against = {}
@@ -173,11 +185,17 @@ class Stats(commands.Cog):
 
             for character in player_characters:
                 # Count kills against others
-                cursor = self.bot.db_manager.kill_events.find({
+                query_kills = {
                     'guild_id': guild_id,
                     'killer': character,
                     'is_suicide': False
-                })
+                }
+                
+                # Add server filter if specified
+                if server_id:
+                    query_kills['server_id'] = server_id
+                
+                cursor = self.bot.db_manager.kill_events.find(query_kills)
 
                 async for kill_event in cursor:
                     victim = kill_event.get('victim')
@@ -185,11 +203,17 @@ class Stats(commands.Cog):
                         kills_against[victim] = kills_against.get(victim, 0) + 1
 
                 # Count deaths to others
-                cursor = self.bot.db_manager.kill_events.find({
+                query_deaths = {
                     'guild_id': guild_id,
                     'victim': character,
                     'is_suicide': False
-                })
+                }
+                
+                # Add server filter if specified
+                if server_id:
+                    query_deaths['server_id'] = server_id
+                
+                cursor = self.bot.db_manager.kill_events.find(query_deaths)
 
                 async for kill_event in cursor:
                     killer = kill_event.get('killer')
@@ -210,9 +234,9 @@ class Stats(commands.Cog):
 
     @discord.slash_command(name="stats", description="View PvP statistics for yourself, a user, or a player name")
     async def stats(self, ctx: discord.ApplicationContext, 
-                   target: str = None,
+                   target: discord.Option(str, "Target user or player name", required=False) = None,
                    server: discord.Option(str, "Server to view stats for", required=False, 
-                                        autocomplete=ServerAutocomplete.autocomplete_server_name)):
+                                        autocomplete=ServerAutocomplete.autocomplete_server_name) = None):
         """View PvP statistics for yourself, another user, or a player name"""
         try:
             if not ctx.guild:
@@ -221,6 +245,23 @@ class Stats(commands.Cog):
 
             guild_id = ctx.guild.id
             server_name = ctx.guild.name
+
+            # Handle server filtering if provided
+            if server and server.strip():
+                # Validate server exists for this guild
+                guild_doc = await self.bot.db_manager.get_guild(guild_id)
+                if guild_doc:
+                    servers = guild_doc.get('servers', [])
+                    server_found = False
+                    for server_config in servers:
+                        if str(server_config.get('_id', '')) == str(server) or str(server_config.get('server_id', '')) == str(server):
+                            server_name = server_config.get('name', f'Server {server}')
+                            server_found = True
+                            break
+                    
+                    if not server_found:
+                        await ctx.respond("❌ Server not found for this guild.", ephemeral=True)
+                        return
 
             # Handle different target types
             if target is None:
@@ -270,7 +311,7 @@ class Stats(commands.Cog):
             await ctx.defer()
 
             # Get combined stats
-            stats = await self.get_player_combined_stats(guild_id, player_characters)
+            stats = await self.get_player_combined_stats(guild_id, player_characters, server)
 
             total_kills = stats['kills']
             total_deaths = stats['deaths']

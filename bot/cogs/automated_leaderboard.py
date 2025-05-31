@@ -159,9 +159,9 @@ class AutomatedLeaderboard(commands.Cog):
             }
             
             # Get actual data for consolidated leaderboard
-            top_killers = await self.get_top_kills(guild_id, 3)
-            top_kdr = await self.get_top_kdr(guild_id, 3)
-            top_distance = await self.get_top_distance(guild_id, 3)
+            top_killers = await self.get_top_kills(guild_id, 3, server_id)
+            top_kdr = await self.get_top_kdr(guild_id, 3, server_id)
+            top_distance = await self.get_top_distance(guild_id, 3, server_id)
 
             # Build sections with real data
             sections = []
@@ -270,25 +270,37 @@ class AutomatedLeaderboard(commands.Cog):
             logger.error(f"Failed to create consolidated leaderboard: {e}")
             return None, None
 
-    async def get_top_kills(self, guild_id: int, limit: int) -> List[Dict[str, Any]]:
+    async def get_top_kills(self, guild_id: int, limit: int, server_id: str = None) -> List[Dict[str, Any]]:
         """Get top killers"""
         try:
-            cursor = self.bot.db_manager.pvp_data.find({
+            query = {
                 "guild_id": guild_id,
                 "kills": {"$gt": 0}
-            }).sort("kills", -1).limit(limit)
+            }
+            
+            # Add server filter if specified
+            if server_id:
+                query["server_id"] = server_id
+            
+            cursor = self.bot.db_manager.pvp_data.find(query).sort("kills", -1).limit(limit)
             return await cursor.to_list(length=None)
         except Exception as e:
             logger.error(f"Failed to get top kills: {e}")
             return []
 
-    async def get_top_kdr(self, guild_id: int, limit: int) -> List[Dict[str, Any]]:
+    async def get_top_kdr(self, guild_id: int, limit: int, server_id: str = None) -> List[Dict[str, Any]]:
         """Get top KDR players"""
         try:
-            cursor = self.bot.db_manager.pvp_data.find({
+            query = {
                 "guild_id": guild_id,
                 "kills": {"$gte": 1}
-            }).limit(50)
+            }
+            
+            # Add server filter if specified
+            if server_id:
+                query["server_id"] = server_id
+            
+            cursor = self.bot.db_manager.pvp_data.find(query).limit(50)
             all_players = await cursor.to_list(length=None)
 
             # Calculate KDR and sort in Python
@@ -303,13 +315,19 @@ class AutomatedLeaderboard(commands.Cog):
             logger.error(f"Failed to get top KDR: {e}")
             return []
 
-    async def get_top_distance(self, guild_id: int, limit: int) -> List[Dict[str, Any]]:
+    async def get_top_distance(self, guild_id: int, limit: int, server_id: str = None) -> List[Dict[str, Any]]:
         """Get top distance players"""
         try:
-            cursor = self.bot.db_manager.pvp_data.find({
+            query = {
                 "guild_id": guild_id,
                 "personal_best_distance": {"$gt": 0}
-            }).sort("personal_best_distance", -1).limit(limit)
+            }
+            
+            # Add server filter if specified
+            if server_id:
+                query["server_id"] = server_id
+            
+            cursor = self.bot.db_manager.pvp_data.find(query).sort("personal_best_distance", -1).limit(limit)
             return await cursor.to_list(length=None)
         except Exception as e:
             logger.error(f"Failed to get top distance: {e}")

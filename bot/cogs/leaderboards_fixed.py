@@ -162,6 +162,24 @@ class LeaderboardsFixed(commands.Cog):
 
         return f"{rank_display} {player_name}{faction_tag} — {value}"
 
+    async def get_top_kills(self, guild_id: int, server_id: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get top killers for a specific server"""
+        try:
+            query = {
+                "guild_id": guild_id,
+                "kills": {"$gt": 0}
+            }
+
+            # Add server filter if specified
+            if server_id and server_id.strip():
+                query["server_id"] = server_id
+
+            cursor = self.bot.db_manager.pvp_data.find(query).sort("kills", -1).limit(limit)
+            return await cursor.to_list(length=None)
+        except Exception as e:
+            logger.error(f"Error getting top kills: {e}")
+            return []
+            
     async def create_themed_leaderboard(self, guild_id: int, server_id: str, stat_type: str, server_name: str) -> Tuple[Optional[discord.Embed], Optional[discord.File]]:
         """Create properly themed leaderboard using EmbedFactory"""
         try:
@@ -186,12 +204,7 @@ class LeaderboardsFixed(commands.Cog):
             }
 
             if stat_type == 'kills':
-                # Guild-wide query (server filtering will be applied at guild level)
-                cursor = self.bot.db_manager.pvp_data.find({
-                    "guild_id": guild_id,
-                    "kills": {"$gt": 0}
-                }).sort("kills", -1).limit(10)
-                players = await cursor.to_list(length=None)
+                players = await self.get_top_kills(guild_id, server_id)
                 title = f"{random.choice(title_pools['kills'])} - {server_name}"
                 description = descriptions['kills']
 
