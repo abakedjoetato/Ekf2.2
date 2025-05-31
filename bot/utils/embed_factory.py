@@ -411,21 +411,20 @@ class EmbedFactory:
             # Get themed message (use title only)
             title, _ = cls._get_themed_message(message_type)
 
-            # Get random atmospheric message
-            atmospheric_messages = cls.KILLFEED_ATMOSPHERIC_MESSAGES.get(atmospheric_type, [])
-            atmospheric_message = random.choice(atmospheric_messages) if atmospheric_messages else ""
-
-            # Create embed with appropriate color based on death type
+            # Create embed with appropriate color based on death type (no description initially)
             if is_suicide:
                 if 'fall' in weapon.lower() or 'falling' in weapon.lower():
                     color = 0xa855f7  # Purple for falling deaths
+                    atmospheric_type = 'fall'
                 else:
                     color = 0xff0000  # Red for suicide
+                    atmospheric_type = 'suicide'
             else:
                 color = 0xffd700  # Gold for kills
+                atmospheric_type = 'kill'
+            
             embed = discord.Embed(
                 title=title,
-                description=atmospheric_message,
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
@@ -452,6 +451,14 @@ class EmbedFactory:
                     embed.add_field(name="Distance", value=f"{distance}m", inline=True)
 
                 asset_key = 'killfeed'
+
+            # Add atmospheric message as a field below the data (without indentation)
+            atmospheric_messages = cls.KILLFEED_ATMOSPHERIC_MESSAGES.get(atmospheric_type, [])
+            if atmospheric_messages:
+                atmospheric_message = random.choice(atmospheric_messages)
+                # Remove the "> " indentation from the message
+                clean_message = atmospheric_message.replace("> ", "")
+                embed.add_field(name="", value=clean_message, inline=False)
 
             # Set thumbnail with case-insensitive lookup
             asset_path, asset_filename = cls._get_asset_path(asset_key)
