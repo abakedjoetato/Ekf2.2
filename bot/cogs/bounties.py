@@ -337,10 +337,12 @@ class Bounties(commands.Cog):
                     inline=False
                 )
 
+            # Set thumbnail using bounty asset
+            bounty_file = discord.File("./assets/Bounty.png", filename="Bounty.png")
             embed.set_thumbnail(url="attachment://Bounty.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers • 🤖 = Auto-generated")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=bounty_file)
 
         except Exception as e:
             logger.error(f"Failed to list bounties: {e}")
@@ -462,10 +464,12 @@ class Bounties(commands.Cog):
                     inline=False
                 )
 
+            # Set thumbnail using bounty asset
+            bounty_file = discord.File("./assets/Bounty.png", filename="Bounty.png")
             embed.set_thumbnail(url="attachment://Bounty.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await channel.send(embed=embed)
+            await channel.send(embed=embed, file=bounty_file)
 
         except Exception as e:
             logger.error(f"Failed to send bounty claimed embed: {e}")
@@ -603,10 +607,12 @@ class Bounties(commands.Cog):
                 inline=False
             )
 
+            # Set thumbnail using bounty asset
+            bounty_file = discord.File("./assets/Bounty.png", filename="Bounty.png")
             embed.set_thumbnail(url="attachment://Bounty.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers • Auto-generated bounty")
 
-            await channel.send(embed=embed)
+            await channel.send(embed=embed, file=bounty_file)
 
         except Exception as e:
             logger.error(f"Failed to send auto-bounty embed: {e}")

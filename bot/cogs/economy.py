@@ -116,10 +116,11 @@ class Economy(commands.Cog):
             )
             
             # Add thumbnail
+            main_file = discord.File("./assets/main.png", filename="main.png")
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
             
         except Exception as e:
             logger.error(f"Failed to show balance: {e}")
@@ -215,10 +216,11 @@ class Economy(commands.Cog):
                         inline=True
                     )
                     
+                    main_file = discord.File("./assets/main.png", filename="main.png")
                     embed.set_thumbnail(url="attachment://main.png")
                     embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
                     
-                    await ctx.followup.send(embed=embed)
+                    await ctx.followup.send(embed=embed, file=main_file)
                 else:
                     await ctx.followup.send("❌ Failed to process work payment. Please try again.")
             
