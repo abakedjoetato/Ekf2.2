@@ -257,10 +257,12 @@ class Bounties(commands.Cog):
                 inline=False
             )
 
+            # Set thumbnail using bounty asset
+            bounty_file = discord.File("./assets/Bounty.png", filename="Bounty.png")
             embed.set_thumbnail(url="attachment://Bounty.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=bounty_file)
 
         except Exception as e:
             logger.error(f"Failed to set bounty: {e}")

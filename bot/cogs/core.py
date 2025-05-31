@@ -54,10 +54,12 @@ class Core(commands.Cog):
                 inline=False
             )
 
-            embed.set_thumbnail(url=self.bot.user.avatar.url if self.bot.user and self.bot.user.avatar else None)
+            # Set thumbnail using main logo
+            main_file = discord.File("./assets/main.png", filename="main.png")
+            embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
         except Exception as e:
             logger.error(f"Failed to show bot info: {e}")
             await ctx.respond("❌ Failed to retrieve bot information.", ephemeral=True)
@@ -135,10 +137,12 @@ class Core(commands.Cog):
                 inline=False
             )
 
-            embed.set_thumbnail(url=self.bot.user.avatar.url if self.bot.user and self.bot.user.avatar else None)
+            # Set thumbnail using main logo
+            main_file = discord.File("./assets/main.png", filename="main.png")
+            embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to show help: {e}")
@@ -183,10 +187,12 @@ class Core(commands.Cog):
                 inline=True
             )
 
-            embed.set_thumbnail(url=self.bot.user.avatar.url if self.bot.user and self.bot.user.avatar else None)
+            # Set thumbnail using main logo
+            main_file = discord.File("./assets/main.png", filename="main.png")
+            embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to show status: {e}")
