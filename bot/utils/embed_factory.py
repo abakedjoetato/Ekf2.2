@@ -367,8 +367,14 @@ class EmbedFactory:
             # Get themed message
             title, description = cls._get_themed_message(message_type)
             
-            # Create embed
-            color = cls.COLORS['killfeed']
+            # Create embed with appropriate color based on death type
+            if is_suicide:
+                if 'fall' in weapon.lower() or 'falling' in weapon.lower():
+                    color = 0xa855f7  # Purple for falling deaths
+                else:
+                    color = 0xff0000  # Red for suicide
+            else:
+                color = 0xffd700  # Gold for kills
             embed = discord.Embed(
                 title=title,
                 description=description,
