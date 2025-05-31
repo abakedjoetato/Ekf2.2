@@ -10,8 +10,8 @@ import logging
 import random
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Dict, Any, List
-# Removed autocomplete import to fix loading issues
 from bot.utils.embed_factory import EmbedFactory
+from bot.cogs.autocomplete import ServerAutocomplete
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,8 @@ class LeaderboardsFixed(commands.Cog):
     async def leaderboard(self, ctx: discord.ApplicationContext,
                          stat: discord.Option(str, "Statistic to display", 
                                             choices=['kills', 'deaths', 'kdr', 'distance', 'weapons', 'factions']),
-                         server: discord.Option(str, "Server to view stats for", required=False)):
+                         server: discord.Option(str, "Server to view stats for", required=False, 
+                                              autocomplete=ServerAutocomplete.autocomplete_server_name)):
         """Display properly themed leaderboard"""
         await ctx.defer()
 
@@ -223,21 +224,12 @@ class LeaderboardsFixed(commands.Cog):
                 description = descriptions['kdr']
 
             elif stat_type == 'distance':
-                # Use the pvp_data collection for distance leaderboard - query by _id for server match
-                pipeline = [
-                    {"$match": {"guild_id": guild_id, "_id": server_id}},
-                    {"$match": {"personal_best_distance": {"$gt": 0}}},  # Only players with distance kills
-                    {"$addFields": {
-                        "kdr": {"$cond": {
-                            "if": {"$gt": ["$deaths", 0]},
-                            "then": {"$divide": ["$kills", "$deaths"]},
-                            "else": "$kills"
-                        }}
-                    }},
-                    {"$sort": {"personal_best_distance": -1}},  # Sort by longest single kill distance
-                    {"$limit": 10}
-                ]
-                players = await self.bot.db_manager.pvp_data.aggregate(pipeline).to_list(length=None)
+                # Guild-wide query for distance leaderboard
+                cursor = self.bot.db_manager.pvp_data.find({
+                    "guild_id": guild_id,
+                    "personal_best_distance": {"$gt": 0}
+                }).sort("personal_best_distance", -1).limit(10)
+                players = await cursor.to_list(length=None)
                 title = f"{random.choice(title_pools['distance'])} - {server_name}"
                 description = descriptions['distance']
 

@@ -422,7 +422,7 @@ class EmbedFactory:
             else:
                 color = 0xffd700  # Gold for kills
                 atmospheric_type = 'kill'
-            
+
             embed = discord.Embed(
                 title=title,
                 color=color,
@@ -694,7 +694,7 @@ class EmbedFactory:
 
         # Safe distance comparison - convert to float for numeric check
         try:
-            distance_num = float(distance_str)
+            distance_num = float(distance_str)```python
             if distance_num > 0:
                 embed.add_field(name="Distance", value=f"{distance_str}m", inline=True)
         except (ValueError, TypeError):
@@ -965,3 +965,171 @@ class EmbedFactory:
             return 3
         else:
             return 2  # Low tier missions
+
+    @classmethod
+    def build_stats_embed(cls, data: Dict[str, Any], player_name: str, server_name: str) -> discord.Embed:
+        """Build player stats embed with real data"""
+        try:
+            embed = discord.Embed(
+                title=f"Player Statistics",
+                description=f"Stats for {player_name} on {server_name}",
+                color=cls.COLORS['info'],
+                timestamp=datetime.now(timezone.utc)
+            )
+            
+            # Player Stats Fields with real data
+            kills = data.get('kills', 0)
+            deaths = data.get('deaths', 0)
+            kdr = data.get('kdr', '0.00')
+            suicides = data.get('suicides', 0)
+            best_streak = data.get('best_streak', 0)
+
+            embed.add_field(name="🎯 Eliminations", value=f"{kills:,}", inline=True)
+            embed.add_field(name="💀 Deaths", value=f"{deaths:,}", inline=True)
+            embed.add_field(name="📊 K/D Ratio", value=str(kdr), inline=True)
+
+            embed.add_field(name="🔫 Suicides", value=f"{suicides:,}", inline=True)
+            embed.add_field(name="🏆 Best Streak", value=f"{best_streak:,}", inline=True)
+
+            # Distance formatting
+            best_distance = data.get('best_distance', 0.0)
+            if isinstance(best_distance, (int, float)) and best_distance > 0:
+                if best_distance >= 1000:
+                    distance_str = f"{best_distance/1000:.1f}km"
+                else:
+                    distance_str = f"{best_distance:.0f}m"
+            else:
+                distance_str = "No long-range kills"
+            embed.add_field(name="📏 Best Distance", value=distance_str, inline=True)
+
+            # Weapon and rivalry info
+            fav_weapon = data.get('favorite_weapon')
+            if fav_weapon and fav_weapon != 'Unknown':
+                weapon_text = fav_weapon
+            else:
+                weapon_text = "No preferred weapon"
+            embed.add_field(name="⚔️ Favorite Weapon", value=weapon_text, inline=True)
+
+            rival = data.get('rival')
+            rival_kills = data.get('rival_kills', 0)
+            if rival and rival_kills > 0:
+                rival_text = f"{rival} ({rival_kills} kills)"
+            else:
+                rival_text = "No rivals yet"
+            embed.add_field(name="🎯 Rival", value=rival_text, inline=True)
+
+            nemesis = data.get('nemesis')
+            nemesis_deaths = data.get('nemesis_deaths', 0)
+            if nemesis and nemesis_deaths > 0:
+                nemesis_text = f"{nemesis} ({nemesis_deaths} deaths)"
+            else:
+                nemesis_text = "No nemesis yet"
+            embed.add_field(name="💀 Nemesis", value=nemesis_text, inline=True)
+
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('weapon')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
+
+            embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
+            return embed
+        except Exception as e:
+            logger.error(f"Failed to build stats embed: {e}")
+            return cls._create_fallback_embed("Player Stats", "Statistics not available")
+
+    @classmethod
+    def build_leaderboard_embed(cls, data: Dict[str, Any], leaderboard_type: str, server_name: str) -> discord.Embed:
+        """Build leaderboard embed with real rankings and totals"""
+        try:
+            embed = discord.Embed(
+                title=f"{leaderboard_type.title()} Leaderboard",
+                description=f"Top players on {server_name}",
+                color=cls.COLORS['leaderboard'],
+                timestamp=datetime.now(timezone.utc)
+            )
+
+            # Use real rankings data
+            rankings_text = data.get('rankings', 'No data available')
+            if rankings_text and rankings_text != 'No data available':
+                embed.add_field(name="📊 Rankings", value=rankings_text, inline=False)
+            else:
+                embed.add_field(name="📊 Rankings", value="No player data found for this leaderboard", inline=False)
+
+            # Footer with real totals
+            total_kills = data.get('total_kills', 0)
+            total_deaths = data.get('total_deaths', 0)
+
+            if total_kills > 0 or total_deaths > 0:
+                embed.set_footer(text=f"Total Kills: {total_kills:,} | Total Deaths: {total_deaths:,}")
+            else:
+                embed.set_footer(text="No statistics available")
+
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('leaderboard')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
+
+            return embed
+        except Exception as e:
+            logger.error(f"Failed to build leaderboard embed: {e}")
+            return cls._create_fallback_embed("Leaderboard", "Rankings not available")
+
+    @classmethod
+    def build_comparison_embed(cls, data: Dict[str, Any], player1_name: str, player2_name: str, server_name: str) -> discord.Embed:
+        """Create a comparison embed with real data for two players"""
+        try:
+            embed = discord.Embed(
+                title="Player Comparison",
+                description=f"Comparing stats on {server_name}",
+                color=cls.COLORS['info'],
+                timestamp=datetime.now(timezone.utc)
+            )
+
+            # Create side-by-side comparison with real data
+            player1_stats = data.get('player1_stats', {})
+            player2_stats = data.get('player2_stats', {})
+
+            # Kills comparison
+            p1_kills = player1_stats.get('kills', 0)
+            p2_kills = player2_stats.get('kills', 0)
+            winner_kills = "🏆" if p1_kills > p2_kills else ("🏆" if p2_kills > p1_kills else "🤝")
+
+            # Deaths comparison  
+            p1_deaths = player1_stats.get('deaths', 0)
+            p2_deaths = player2_stats.get('deaths', 0)
+            winner_deaths = "🏆" if p1_deaths < p2_deaths else ("🏆" if p2_deaths < p1_deaths else "🤝")
+
+            # KDR comparison
+            p1_kdr = player1_stats.get('kdr', 0.0)
+            p2_kdr = player2_stats.get('kdr', 0.0)
+            winner_kdr = "🏆" if p1_kdr > p2_kdr else ("🏆" if p2_kdr > p1_kdr else "🤝")
+
+            embed.add_field(
+                name="🎯 Eliminations",
+                value=f"{player1_name}: {p1_kills:,} {'🏆' if p1_kills > p2_kills else ''}\n{player2_name}: {p2_kills:,} {'🏆' if p2_kills > p1_kills else ''}",
+                inline=True
+            )
+
+            embed.add_field(
+                name="💀 Deaths", 
+                value=f"{player1_name}: {p1_deaths:,} {'🏆' if p1_deaths < p2_deaths else ''}\n{player2_name}: {p2_deaths:,} {'🏆' if p2_deaths < p1_deaths else ''}",
+                inline=True
+            )
+
+            embed.add_field(
+                name="📊 K/D Ratio",
+                value=f"{player1_name}: {p1_kdr:.2f} {'🏆' if p1_kdr > p2_kdr else ''}\n{player2_name}: {p2_kdr:.2f} {'🏆' if p2_kdr > p1_kdr else ''}",
+                inline=True
+            )
+
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('faction')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
+
+            embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
+            return embed
+
+        except Exception as e:
+            logger.error(f"Failed to build comparison embed: {e}")
+            return cls._create_fallback_embed("Player Comparison", "Unable to compare players")

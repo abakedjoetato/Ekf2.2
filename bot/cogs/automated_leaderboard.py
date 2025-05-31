@@ -140,17 +140,27 @@ class AutomatedLeaderboard(commands.Cog):
     async def create_consolidated_leaderboard(self, guild_id: int, server_id: str, server_name: str):
         """Create consolidated leaderboard with top performers from each category"""
         try:
-            # Title and description
-            title = f"📊 CONSOLIDATED LEADERBOARD - {server_name}"
-            description = "Top performers across all categories"
-
-            # Get top players for each category
-            top_killers = await self.get_top_kills(guild_id, 3)
-            top_kdr = await self.get_top_kdr(guild_id, 3)
-            top_distance = await self.get_top_distance(guild_id, 3)
-
-            # Build consolidated rankings
-            sections = []
+            # Get top players for each category using the same methods as leaderboards_fixed
+            from bot.cogs.leaderboards_fixed import LeaderboardsFixed
+            
+            leaderboard_cog = LeaderboardsFixed(self.bot)
+            
+            # Create a consolidated leaderboard using EmbedFactory
+            embed_data = {
+                'title': f"📊 CONSOLIDATED LEADERBOARD - {server_name}",
+                'description': "Top performers across all categories",
+                'rankings': "Automated leaderboard data coming soon...",
+                'total_kills': 0,
+                'total_deaths': 0,
+                'stat_type': 'consolidated',
+                'style_variant': 'consolidated',
+                'server_name': server_name,
+                'thumbnail_url': 'attachment://Leaderboard.png'
+            }
+            
+            # Use EmbedFactory to create the embed
+            embed, file = await EmbedFactory.build('leaderboard', embed_data)
+            return embed, file []
 
             if top_killers:
                 killer_lines = []

@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Any, Tuple
 import discord
 from discord.ext import commands
 from bot.utils.embed_factory import EmbedFactory
+from bot.cogs.autocomplete import ServerAutocomplete
 
 logger = logging.getLogger(__name__)
 
@@ -208,7 +209,10 @@ class Stats(commands.Cog):
             logger.error(f"Failed to calculate rivals/nemesis: {e}")
 
     @discord.slash_command(name="stats", description="View PvP statistics for yourself, a user, or a player name")
-    async def stats(self, ctx: discord.ApplicationContext, target: str = None):
+    async def stats(self, ctx: discord.ApplicationContext, 
+                   target: str = None,
+                   server: discord.Option(str, "Server to view stats for", required=False, 
+                                        autocomplete=ServerAutocomplete.autocomplete_server_name)):
         """View PvP statistics for yourself, another user, or a player name"""
         try:
             if not ctx.guild:
