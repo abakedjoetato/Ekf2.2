@@ -61,7 +61,7 @@ class EmbedFactory:
         'main': 'main.png'
     }
 
-    # Themed messages for each embed type
+    # Themed messages for each embed type - EXPANDED POOLS
     THEMED_MESSAGES = {
         'connection_join': [
             ("Reinforcements Arrive", "A new operative has entered the battlefield"),
@@ -73,7 +73,17 @@ class EmbedFactory:
             ("Mercenary Activated", "A hired gun has entered the combat zone"),
             ("Soldier Reporting In", "Military unit now deployed and ready"),
             ("Combat Unit Online", "Tactical operator is now field-ready"),
-            ("Fresh Blood Arrives", "New combatant has entered the warzone")
+            ("Fresh Blood Arrives", "New combatant has entered the warzone"),
+            ("Unit Deployed", "New tactical asset has entered the field"),
+            ("Ally Reinforcement", "Additional friendly forces have arrived"),
+            ("Combat Ready", "New operative is mission-ready and armed"),
+            ("Field Agent Active", "Special forces unit now operational"),
+            ("Strike Team Member", "Elite operator has joined the battlefield"),
+            ("Tactical Insert", "Specialist unit deployed to combat zone"),
+            ("Boots on Ground", "Infantry unit has entered the operational area"),
+            ("Mission Support", "Additional resources now available"),
+            ("Operative Online", "Field agent reporting for active duty"),
+            ("Battle Ready", "New combatant prepared for engagement")
         ],
         'connection_leave': [
             ("Extraction Confirmed", "Operative has successfully left the battlefield"),
@@ -85,7 +95,17 @@ class EmbedFactory:
             ("End of Deployment", "Tour of duty has been concluded"),
             ("Evacuation Complete", "Personnel safely removed from danger zone"),
             ("Mission Concluded", "Operative has finished their assignment"),
-            ("Fade to Black", "Last transmission received from departing unit")
+            ("Fade to Black", "Last transmission received from departing unit"),
+            ("Stand Down", "Operative has been relieved from active duty"),
+            ("Exfiltration Success", "Agent successfully extracted from the field"),
+            ("Mission Wrap", "Operational tour has reached completion"),
+            ("Signal Lost", "Connection terminated with field operative"),
+            ("RTB Confirmed", "Return to base mission accomplished"),
+            ("Off Duty", "Operator has concluded combat operations"),
+            ("Ghost Protocol", "Agent has vanished from the battlefield"),
+            ("Mission End", "Tactical assignment successfully completed"),
+            ("Withdrawal Complete", "Strategic pullback executed flawlessly"),
+            ("Final Transmission", "Last communication received from operative")
         ],
         'killfeed_kill': [
             ("Hostile Eliminated", "Another survivor has fallen to superior tactics"),
@@ -97,7 +117,17 @@ class EmbedFactory:
             ("Combat Success", "Violence solves yet another dispute"),
             ("Enemy Down", "The apocalypse continues to thin the herd"),
             ("Confirmed Kill", "Natural selection at its finest"),
-            ("Threat Eliminated", "The wasteland's brutal law prevails")
+            ("Threat Eliminated", "The wasteland's brutal law prevails"),
+            ("Fatal Encounter", "Another casualty of the contaminated world"),
+            ("Engagement Resolved", "Superior firepower claims another victim"),
+            ("Combat Casualty", "The harsh reality of survival warfare"),
+            ("Tactical Victory", "Strategic elimination successfully executed"),
+            ("Hostile Terminated", "Enemy combatant permanently neutralized"),
+            ("Lethal Force Applied", "Deadly encounter resolved decisively"),
+            ("Target Acquired", "Precision strike eliminates hostile threat"),
+            ("Enemy Neutralized", "Opposition force permanently disabled"),
+            ("Combat Effective", "Deadly engagement concluded successfully"),
+            ("Elimination Successful", "Hostile target removed from battlefield")
         ],
         'killfeed_suicide': [
             ("Manual Uninstall", "Someone pressed the wrong button, it didn't end well"),
@@ -109,7 +139,17 @@ class EmbedFactory:
             ("Final Bug Report", "Error 404: Player not found"),
             ("Creative Problem Solving", "Found a permanent solution to temporary problems"),
             ("Unscheduled Logout", "Rage quit taken to the extreme"),
-            ("Self-Destruct Sequence", "Someone skipped the safety briefing")
+            ("Self-Destruct Sequence", "Someone skipped the safety briefing"),
+            ("Operator Error", "RTFM should have been mandatory reading"),
+            ("Epic Fail", "Achievement unlocked: Ultimate facepalm"),
+            ("Darwin Award", "Natural selection working as intended"),
+            ("Auto-Delete", "Self-removal protocol activated successfully"),
+            ("Friendly Fire", "Plot twist: the call was coming from inside"),
+            ("System Crash", "Blue screen of death, literally"),
+            ("User Input Error", "Keyboard error: Press F to pay respects"),
+            ("Accidental Activation", "Read the instructions, they said"),
+            ("Critical Failure", "Murphy's Law strikes again"),
+            ("Self-Termination", "Took 'going out with a bang' literally")
         ],
         'killfeed_fall': [
             ("Gravity Check Failed", "Physics had different ideas about that flight plan"),
@@ -121,7 +161,17 @@ class EmbedFactory:
             ("Rapid Descent Protocol", "Took the scenic route down"),
             ("Uncontrolled Landing", "Forgot to pack a parachute for that trip"),
             ("Ground Impact Event", "Learned that falling with style still hurts"),
-            ("Elevation Miscalculation", "Overestimated their frequent flyer miles")
+            ("Elevation Miscalculation", "Overestimated their frequent flyer miles"),
+            ("Vertical Velocity Error", "Speed limit exceeded in the downward direction"),
+            ("Parachute Malfunction", "Backup chute was also out of order"),
+            ("Aerodynamic Failure", "Turns out humans are terrible at flying"),
+            ("Ground Proximity Alert", "Warning came a little too late"),
+            ("Emergency Landing", "Forgot to request clearance from the ground"),
+            ("Atmospheric Re-entry", "Came in too hot without heat shields"),
+            ("Cliff Notes", "Took a shortcut that went straight down"),
+            ("Diving Accident", "Olympic scoring: Perfect 10 for form"),
+            ("Flight Training", "Lesson one: Landing is usually optional"),
+            ("Altitude Sickness", "Cure was found at ground level")
         ],
         'mission_ready': [
             ("Objective Available", "New tactical mission is ready for deployment"),
@@ -133,7 +183,22 @@ class EmbedFactory:
             ("Mission Active", "Strategic objective is now operational"),
             ("Objective Online", "Target zone cleared for engagement"),
             ("Operation Commenced", "Mission parameters are now live"),
-            ("Battle Orders", "Tactical engagement zone is active")
+            ("Battle Orders", "Tactical engagement zone is active"),
+            ("Assignment Ready", "High-priority operation awaiting execution"),
+            ("Mission Package", "Strategic directive now available for action"),
+            ("Objective Briefing", "Critical mission zone has been activated"),
+            ("Tactical Deployment", "Elite operation ready for specialized units"),
+            ("Priority Target", "High-value objective now accessible"),
+            ("Operation Alert", "Strategic mission parameters established"),
+            ("Mission Protocol", "Tactical engagement zone now operational"),
+            ("Directive Active", "Combat mission ready for deployment"),
+            ("Strategic Objective", "Priority operation cleared for execution"),
+            ("Combat Assignment", "Tactical mission zone now available"),
+            ("Field Operation", "Specialized mission ready for elite forces"),
+            ("Tactical Brief", "Strategic operation parameters confirmed"),
+            ("Mission Clearance", "High-priority objective zone activated"),
+            ("Operation Status", "Critical mission deployment authorized"),
+            ("Assignment Brief", "Tactical operation ready for execution")
         ],
         'airdrop_incoming': [
             ("Supply Drop Inbound", "Aerial resupply package approaching"),
@@ -145,7 +210,17 @@ class EmbedFactory:
             ("Sky Delivery", "Supply aircraft making final approach"),
             ("Cargo Inbound", "Aerial resupply mission in progress"),
             ("Supply Drop Active", "Logistics delivery now approaching"),
-            ("Air Logistics", "Supply package incoming from above")
+            ("Air Logistics", "Supply package incoming from above"),
+            ("Cargo Flight", "Aerial supply mission on final vector"),
+            ("Drop Zone Active", "Supply aircraft approaching designated area"),
+            ("Supply Vector", "Logistics delivery confirmed inbound"),
+            ("Aerial Package", "High-altitude cargo drop in progress"),
+            ("Sky Cargo", "Supply aircraft on delivery approach"),
+            ("Logistics Drop", "Aerial resupply package incoming"),
+            ("Supply Mission", "Cargo aircraft confirmed on approach"),
+            ("Drop Incoming", "Aerial delivery system activated"),
+            ("Cargo Delivery", "Supply drop mission in final approach"),
+            ("Air Supply", "Logistics aircraft inbound with cargo")
         ],
         'helicrash_event': [
             ("Aircraft Down", "Helicopter has crash-landed in the area"),
@@ -157,7 +232,17 @@ class EmbedFactory:
             ("Aviation Incident", "Rotorcraft emergency landing confirmed"),
             ("Chopper Down", "Helicopter crash site now active"),
             ("Flight Emergency", "Aviation emergency landing reported"),
-            ("Rotor Failure", "Helicopter suffered mechanical failure")
+            ("Rotor Failure", "Helicopter suffered mechanical failure"),
+            ("Forced Landing", "Rotorcraft emergency descent completed"),
+            ("Aviation Emergency", "Helicopter distress situation confirmed"),
+            ("Crash Landing", "Aircraft emergency touchdown reported"),
+            ("Wreckage Detected", "Helicopter debris field located"),
+            ("Emergency Beacon", "Aircraft distress signal activated"),
+            ("Mayday Situation", "Helicopter emergency landing confirmed"),
+            ("Flight Incident", "Rotorcraft operational failure reported"),
+            ("Aircraft Emergency", "Helicopter forced landing executed"),
+            ("Crash Zone", "Aviation incident site now active"),
+            ("Emergency Touchdown", "Helicopter distress landing completed")
         ],
         'trader_arrival': [
             ("Black Market Open", "Underground dealer has arrived"),
@@ -169,7 +254,41 @@ class EmbedFactory:
             ("Shadow Merchant", "Underground dealer conducting business"),
             ("Arms Dealer Active", "Weapons merchant now available"),
             ("Black Market Vendor", "Illegal trader has set up shop"),
-            ("Underworld Trading", "Shadow market is now operational")
+            ("Underworld Trading", "Shadow market is now operational"),
+            ("Commerce Active", "Independent trader open for business"),
+            ("Vendor Available", "Specialized merchant now accessible"),
+            ("Trade Post Open", "Commercial vendor ready for transactions"),
+            ("Market Vendor", "Underground trader conducting sales"),
+            ("Dealer Network", "Black market contact now available"),
+            ("Commerce Hub", "Trading post now operational"),
+            ("Merchant Contact", "Underground dealer ready for business"),
+            ("Trade Terminal", "Commercial vendor now accessible"),
+            ("Supply Contact", "Independent trader open for deals"),
+            ("Exchange Active", "Underground market now operational")
+        ],
+        'vehicle_spawn': [
+            ("Vehicle Deployed", "New transportation asset now available"),
+            ("Motor Pool Active", "Vehicle has been deployed to the field"),
+            ("Transport Ready", "New vehicle asset operational"),
+            ("Wheels Up", "Transportation unit now available"),
+            ("Vehicle Online", "Mobile asset deployed and ready"),
+            ("Transport Arrival", "New vehicle has entered the battlefield"),
+            ("Motor Asset", "Transportation resource now operational"),
+            ("Vehicle Ready", "Mobile unit deployed for field use"),
+            ("Transport Active", "New vehicle asset available"),
+            ("Mobile Unit", "Transportation deployed to combat zone")
+        ],
+        'vehicle_delete': [
+            ("Vehicle Lost", "Transportation asset no longer operational"),
+            ("Transport Down", "Vehicle has been removed from service"),
+            ("Motor Pool Loss", "Vehicle asset no longer available"),
+            ("Wheels Down", "Transportation unit out of commission"),
+            ("Vehicle Offline", "Mobile asset removed from operation"),
+            ("Transport Removed", "Vehicle no longer battlefield ready"),
+            ("Motor Loss", "Transportation resource unavailable"),
+            ("Vehicle Destroyed", "Mobile unit eliminated from service"),
+            ("Transport Inactive", "Vehicle asset removed from field"),
+            ("Mobile Down", "Transportation no longer operational")
         ]
     }
 
@@ -348,25 +467,44 @@ class EmbedFactory:
         Get asset path with case-insensitive fallback
         Returns (asset_path, filename) tuple
         """
-        # Try exact match first
+        # Get the expected filename for this asset key
         asset_filename = cls.ASSETS.get(asset_key, 'main.png')
         asset_path = cls.ASSETS_PATH / asset_filename
         
+        # Try exact match first
         if asset_path.exists():
             return asset_path, asset_filename
         
         # If exact match fails, try case-insensitive search
         if cls.ASSETS_PATH.exists():
             try:
+                target_filename_lower = asset_filename.lower()
                 for file_path in cls.ASSETS_PATH.iterdir():
-                    if file_path.is_file() and file_path.name.lower() == asset_filename.lower():
-                        logger.info(f"Found case-insensitive match: {file_path.name} for {asset_filename}")
+                    if file_path.is_file() and file_path.name.lower() == target_filename_lower:
+                        logger.info(f"✅ Found case-insensitive match: {file_path.name} for {asset_filename}")
                         return file_path, file_path.name
+                
+                # If still not found, try partial matching for common variations
+                base_name = asset_filename.lower().replace('.png', '')
+                for file_path in cls.ASSETS_PATH.iterdir():
+                    if file_path.is_file():
+                        file_name_lower = file_path.name.lower()
+                        if base_name in file_name_lower and file_name_lower.endswith('.png'):
+                            logger.info(f"✅ Found partial match: {file_path.name} for {asset_filename}")
+                            return file_path, file_path.name
+                            
             except Exception as e:
                 logger.warning(f"Error during case-insensitive asset search: {e}")
         
-        # Return original path even if it doesn't exist (for fallback handling)
-        return asset_path, asset_filename
+        # Return fallback to main.png if nothing found
+        fallback_path = cls.ASSETS_PATH / 'main.png'
+        if fallback_path.exists():
+            logger.warning(f"Using fallback asset main.png for missing {asset_filename}")
+            return fallback_path, 'main.png'
+        
+        # Return None if even fallback doesn't exist
+        logger.error(f"No asset found for {asset_key}, fallback main.png also missing")
+        return None, None
 
     @classmethod
     async def build(cls, embed_type: str, data: Dict[str, Any]) -> Tuple[discord.Embed, Optional[discord.File]]:

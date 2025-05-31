@@ -602,11 +602,13 @@ class UnifiedLogParser:
                 logger.error(f"Error processing player event {event.get('type', 'unknown')} for {player_id}: {e}")
                 continue
 
-        # Second pass: process non-player events
+        # Second pass: process non-player events with deduplication
+        processed_events = set()  # Track processed events to prevent duplicates
+        
         for line in lines_to_process:
             try:
 
-                # Mission events - ONLY READY missions of level 3+
+                # Mission events - ONLY READY missions of level 3+ with deduplication
                 mission_match = self.patterns['mission_state_change'].search(line)
                 if mission_match:
                     mission_id, state = mission_match.groups()
@@ -616,50 +618,69 @@ class UnifiedLogParser:
                         if state == 'READY':
                             mission_level = self.get_mission_level(mission_id)
                             if mission_level >= 3:
-                                embed = await self.create_mission_embed(mission_id, state)
-                                if embed:
-                                    embeds.append(embed)
+                                # Create unique event key to prevent duplicates
+                                event_key = f"mission_{mission_id}_{state}"
+                                if event_key not in processed_events:
+                                    processed_events.add(event_key)
+                                    embed = await self.create_mission_embed(mission_id, state)
+                                    if embed:
+                                        embeds.append(embed)
 
-                # Airdrop events - ONLY flying state
+                # Airdrop events - ONLY flying state with deduplication
                 airdrop_flying_match = self.patterns['airdrop_flying'].search(line)
                 if airdrop_flying_match:
                     if not cold_start:
-                        embed = await self.create_airdrop_embed()
-                        if embed:
-                            embeds.append(embed)
+                        event_key = f"airdrop_flying_{datetime.now().strftime('%H:%M')}"  # Dedupe by minute
+                        if event_key not in processed_events:
+                            processed_events.add(event_key)
+                            embed = await self.create_airdrop_embed()
+                            if embed:
+                                embeds.append(embed)
 
-                # Helicrash events - ONLY crash/ready state
+                # Helicrash events - ONLY crash/ready state with deduplication
                 helicrash_match = self.patterns['helicrash_event'].search(line) or self.patterns['helicrash_crash'].search(line)
                 if helicrash_match:
                     if not cold_start:
-                        embed = await self.create_helicrash_embed()
-                        if embed:
-                            embeds.append(embed)
+                        event_key = f"helicrash_{datetime.now().strftime('%H:%M')}"  # Dedupe by minute
+                        if event_key not in processed_events:
+                            processed_events.add(event_key)
+                            embed = await self.create_helicrash_embed()
+                            if embed:
+                                embeds.append(embed)
 
-                # Trader events - ONLY arrival/ready state  
+                # Trader events - ONLY arrival/ready state with deduplication
                 trader_arrival_match = self.patterns['trader_arrival'].search(line)
                 if trader_arrival_match:
                     if not cold_start:
-                        embed = await self.create_trader_embed()
-                        if embed:
-                            embeds.append(embed)
+                        event_key = f"trader_arrival_{datetime.now().strftime('%H:%M')}"  # Dedupe by minute
+                        if event_key not in processed_events:
+                            processed_events.add(event_key)
+                            embed = await self.create_trader_embed()
+                            if embed:
+                                embeds.append(embed)
 
-                # Vehicle events
+                # Vehicle events with deduplication
                 vehicle_spawn_match = self.patterns['vehicle_spawn'].search(line)
                 if vehicle_spawn_match:
                     vehicle_type = vehicle_spawn_match.group(1)
                     if not cold_start:
-                        embed = await self.create_vehicle_embed('spawn', vehicle_type)
-                        if embed:
-                            embeds.append(embed)
+                        event_key = f"vehicle_spawn_{vehicle_type}_{datetime.now().strftime('%H:%M')}"
+                        if event_key not in processed_events:
+                            processed_events.add(event_key)
+                            embed = await self.create_vehicle_embed('spawn', vehicle_type)
+                            if embed:
+                                embeds.append(embed)
 
                 vehicle_delete_match = self.patterns['vehicle_delete'].search(line)
                 if vehicle_delete_match:
                     vehicle_type = vehicle_delete_match.group(1)
                     if not cold_start:
-                        embed = await self.create_vehicle_embed('delete', vehicle_type)
-                        if embed:
-                            embeds.append(embed)
+                        event_key = f"vehicle_delete_{vehicle_type}_{datetime.now().strftime('%H:%M')}"
+                        if event_key not in processed_events:
+                            processed_events.add(event_key)
+                            embed = await self.create_vehicle_embed('delete', vehicle_type)
+                            if embed:
+                                embeds.append(embed)
 
             except Exception as e:
                 logger.error(f"Error processing line: {e}")
