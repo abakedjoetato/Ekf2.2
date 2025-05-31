@@ -215,12 +215,12 @@ class EmbedFactory:
             embed.add_field(name="Platform", value=platform, inline=True)
             embed.add_field(name="Server", value=server_name, inline=True)
             
-            # Set thumbnail
-            asset_path = cls.ASSETS_PATH / cls.ASSETS['connection']
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('connection')
             file_attachment = None
-            if asset_path.exists():
-                file_attachment = discord.File(str(asset_path), filename=cls.ASSETS['connection'])
-                embed.set_thumbnail(url=f"attachment://{cls.ASSETS['connection']}")
+            if asset_path and asset_path.exists():
+                file_attachment = discord.File(str(asset_path), filename=asset_filename)
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed, file_attachment
@@ -263,8 +263,8 @@ class EmbedFactory:
                 embed.add_field(name="Player", value=player_name, inline=True)
                 embed.add_field(name="Cause", value=weapon, inline=True)
                 
-                # Use appropriate asset
-                asset_name = 'Falling.png' if 'fall' in weapon.lower() else 'Suicide.png'
+                # Use appropriate asset key
+                asset_key = 'falling' if 'fall' in weapon.lower() else 'suicide'
             else:
                 # Kill embed
                 killer = data.get('killer', 'Unknown')
@@ -278,14 +278,14 @@ class EmbedFactory:
                 if distance and float(distance) > 0:
                     embed.add_field(name="Distance", value=f"{distance}m", inline=True)
                     
-                asset_name = 'Killfeed.png'
+                asset_key = 'killfeed'
             
-            # Set thumbnail
-            asset_path = cls.ASSETS_PATH / asset_name
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path(asset_key)
             file_attachment = None
-            if asset_path.exists():
-                file_attachment = discord.File(str(asset_path), filename=asset_name)
-                embed.set_thumbnail(url=f"attachment://{asset_name}")
+            if asset_path and asset_path.exists():
+                file_attachment = discord.File(str(asset_path), filename=asset_filename)
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed, file_attachment
@@ -328,12 +328,12 @@ class EmbedFactory:
             embed.add_field(name="Difficulty Level", value=f"Level {level}", inline=True)
             embed.add_field(name="Status", value=state.replace('_', ' ').title(), inline=True)
             
-            # Set thumbnail
-            asset_path = cls.ASSETS_PATH / cls.ASSETS['mission']
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('mission')
             file_attachment = None
-            if asset_path.exists():
-                file_attachment = discord.File(str(asset_path), filename=cls.ASSETS['mission'])
-                embed.set_thumbnail(url=f"attachment://{cls.ASSETS['mission']}")
+            if asset_path and asset_path.exists():
+                file_attachment = discord.File(str(asset_path), filename=asset_filename)
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed, file_attachment
@@ -341,6 +341,32 @@ class EmbedFactory:
         except Exception as e:
             logger.error(f"Failed to build mission embed: {e}")
             return cls._create_fallback_embed("Mission Update", "Mission status changed")
+
+    @classmethod
+    def _get_asset_path(cls, asset_key: str) -> Tuple[Optional[Path], Optional[str]]:
+        """
+        Get asset path with case-insensitive fallback
+        Returns (asset_path, filename) tuple
+        """
+        # Try exact match first
+        asset_filename = cls.ASSETS.get(asset_key, 'main.png')
+        asset_path = cls.ASSETS_PATH / asset_filename
+        
+        if asset_path.exists():
+            return asset_path, asset_filename
+        
+        # If exact match fails, try case-insensitive search
+        if cls.ASSETS_PATH.exists():
+            try:
+                for file_path in cls.ASSETS_PATH.iterdir():
+                    if file_path.is_file() and file_path.name.lower() == asset_filename.lower():
+                        logger.info(f"Found case-insensitive match: {file_path.name} for {asset_filename}")
+                        return file_path, file_path.name
+            except Exception as e:
+                logger.warning(f"Error during case-insensitive asset search: {e}")
+        
+        # Return original path even if it doesn't exist (for fallback handling)
+        return asset_path, asset_filename
 
     @classmethod
     async def build(cls, embed_type: str, data: Dict[str, Any]) -> Tuple[discord.Embed, Optional[discord.File]]:
@@ -371,15 +397,14 @@ class EmbedFactory:
                 title = data.get('title', 'System Event')
                 description = data.get('description', 'Event occurred')
             
-            # Get asset info
-            asset_filename = cls.ASSETS.get(embed_type, 'main.png')
-            asset_path = cls.ASSETS_PATH / asset_filename
+            # Get asset info with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path(embed_type)
             
             # Create file attachment if asset exists
             file_attachment = None
             thumbnail_url = None
             
-            if asset_path.exists():
+            if asset_path and asset_path.exists():
                 file_attachment = discord.File(str(asset_path), filename=asset_filename)
                 thumbnail_url = f"attachment://{asset_filename}"
             
@@ -593,10 +618,10 @@ class EmbedFactory:
             if respawn_time:
                 embed.add_field(name="Respawn Time", value=f"{respawn_time} seconds", inline=True)
             
-            # Set thumbnail for mission
-            asset_path = cls.ASSETS_PATH / cls.ASSETS['mission']
-            if asset_path.exists():
-                embed.set_thumbnail(url=f"attachment://{cls.ASSETS['mission']}")
+            # Set thumbnail for mission with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('mission')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
@@ -619,10 +644,10 @@ class EmbedFactory:
             embed.add_field(name="Location", value=location, inline=True)
             embed.add_field(name="Status", value=state.title(), inline=True)
             
-            # Set thumbnail
-            asset_path = cls.ASSETS_PATH / cls.ASSETS['airdrop']
-            if asset_path.exists():
-                embed.set_thumbnail(url=f"attachment://{cls.ASSETS['airdrop']}")
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('airdrop')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
@@ -645,10 +670,10 @@ class EmbedFactory:
             embed.add_field(name="Crash Site", value=location, inline=True)
             embed.add_field(name="Status", value="Crashed", inline=True)
             
-            # Set thumbnail
-            asset_path = cls.ASSETS_PATH / cls.ASSETS['helicrash']
-            if asset_path.exists():
-                embed.set_thumbnail(url=f"attachment://{cls.ASSETS['helicrash']}")
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('helicrash')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
@@ -671,10 +696,10 @@ class EmbedFactory:
             embed.add_field(name="Location", value=location, inline=True)
             embed.add_field(name="Status", value="Available", inline=True)
             
-            # Set thumbnail
-            asset_path = cls.ASSETS_PATH / cls.ASSETS['trader']
-            if asset_path.exists():
-                embed.set_thumbnail(url=f"attachment://{cls.ASSETS['trader']}")
+            # Set thumbnail with case-insensitive lookup
+            asset_path, asset_filename = cls._get_asset_path('trader')
+            if asset_path and asset_path.exists():
+                embed.set_thumbnail(url=f"attachment://{asset_filename}")
             
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
             return embed
