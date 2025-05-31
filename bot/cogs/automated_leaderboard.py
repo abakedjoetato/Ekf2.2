@@ -158,9 +158,61 @@ class AutomatedLeaderboard(commands.Cog):
                 'thumbnail_url': 'attachment://Leaderboard.png'
             }
             
+            # Get actual data for consolidated leaderboard
+            top_killers = await self.get_top_kills(guild_id, 3)
+            top_kdr = await self.get_top_kdr(guild_id, 3)
+            top_distance = await self.get_top_distance(guild_id, 3)
+
+            # Build sections with real data
+            sections = []
+            
+            if top_killers:
+                killer_lines = []
+                for i, player in enumerate(top_killers, 1):
+                    name = player.get('player_name', 'Unknown')
+                    kills = player.get('kills', 0)
+                    faction = await self.get_player_faction(guild_id, name)
+                    faction_tag = f" [{faction}]" if faction else ""
+                    killer_lines.append(f"**{i}.** {name}{faction_tag} — {kills:,} Kills")
+                sections.append(f"**🔥 TOP KILLERS**\n" + "\n".join(killer_lines))
+
+            if top_kdr:
+                kdr_lines = []
+                for i, player in enumerate(top_kdr, 1):
+                    name = player.get('player_name', 'Unknown')
+                    kdr = player.get('kdr', 0.0)
+                    faction = await self.get_player_faction(guild_id, name)
+                    faction_tag = f" [{faction}]" if faction else ""
+                    kdr_lines.append(f"**{i}.** {name}{faction_tag} — {kdr:.2f} KDR")
+                sections.append(f"**⚡ BEST KDR**\n" + "\n".join(kdr_lines))
+
+            if top_distance:
+                distance_lines = []
+                for i, player in enumerate(top_distance, 1):
+                    name = player.get('player_name', 'Unknown')
+                    distance = player.get('personal_best_distance', 0.0)
+                    faction = await self.get_player_faction(guild_id, name)
+                    faction_tag = f" [{faction}]" if faction else ""
+                    if distance >= 1000:
+                        dist_str = f"{distance/1000:.1f}km"
+                    else:
+                        dist_str = f"{distance:.0f}m"
+                    distance_lines.append(f"**{i}.** {name}{faction_tag} — {dist_str}")
+                sections.append(f"**🎯 LONGEST SHOTS**\n" + "\n".join(distance_lines))
+
+            if not sections:
+                # No data available
+                embed_data['rankings'] = "No statistical data available yet.\nPlay some matches to populate the leaderboards!"
+            else:
+                embed_data['rankings'] = "\n\n".join(sections)
+
+            # Update totals with real data
+            embed_data['total_kills'] = sum(p.get('kills', 0) for p in top_killers)
+            embed_data['total_deaths'] = sum(p.get('deaths', 0) for p in top_killers)
+            
             # Use EmbedFactory to create the embed
             embed, file = await EmbedFactory.build('leaderboard', embed_data)
-            return embed, file []
+            return embed, file
 
             if top_killers:
                 killer_lines = []

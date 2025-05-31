@@ -276,7 +276,23 @@ class Stats(commands.Cog):
             total_deaths = stats['deaths']
             total_kdr = f"{stats['kdr']:.2f}"
 
-            # Use EmbedFactory for comprehensive themed stats
+            # Ensure we have actual data, not placeholders
+            if total_kills == 0 and total_deaths == 0:
+                # No PvP data found
+                embed = discord.Embed(
+                    title=f"Combat Profile: {display_name}",
+                    description=f"No PvP data found for {display_name} on {server_name}.\nStart playing to see your statistics!",
+                    color=0x808080,
+                    timestamp=datetime.now(timezone.utc)
+                )
+                main_file = discord.File("./assets/main.png", filename="main.png")
+                embed.set_thumbnail(url="attachment://main.png")
+                embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
+                
+                await ctx.followup.send(embed=embed, file=main_file)
+                return
+
+            # Use EmbedFactory for comprehensive themed stats with real data
             embed_data = {
                 'title': f"Combat Profile: {display_name}",
                 'description': f"Operational statistics from {server_name}",
@@ -287,10 +303,10 @@ class Stats(commands.Cog):
                 'suicides': stats.get('suicides', 0),
                 'best_distance': stats.get('personal_best_distance', 0.0),
                 'best_streak': stats.get('best_streak', 0),
-                'favorite_weapon': stats.get('favorite_weapon'),
-                'rival': stats.get('rival'),
+                'favorite_weapon': stats.get('favorite_weapon') or 'None',
+                'rival': stats.get('rival') or 'None',
                 'rival_kills': stats.get('rival_kills', 0),
-                'nemesis': stats.get('nemesis'),
+                'nemesis': stats.get('nemesis') or 'None',
                 'nemesis_deaths': stats.get('nemesis_deaths', 0),
                 'server_name': server_name,
                 'thumbnail_url': 'attachment://main.png'

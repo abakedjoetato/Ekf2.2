@@ -694,7 +694,7 @@ class EmbedFactory:
 
         # Safe distance comparison - convert to float for numeric check
         try:
-            distance_num = float(distance_str)```python
+            distance_num = float(distance_str)
             if distance_num > 0:
                 embed.add_field(name="Distance", value=f"{distance_str}m", inline=True)
         except (ValueError, TypeError):

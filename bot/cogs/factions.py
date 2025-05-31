@@ -234,8 +234,6 @@ class Factions(commands.Cog):
             )
 
             faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
-
-
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
@@ -637,8 +635,6 @@ class Factions(commands.Cog):
                 )
 
             faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
-
-
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
@@ -732,8 +728,6 @@ class Factions(commands.Cog):
             )
 
             faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
-
-
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
@@ -816,8 +810,6 @@ class Factions(commands.Cog):
             )
 
             faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
-
-
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 

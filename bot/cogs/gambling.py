@@ -1,4 +1,4 @@
-
+"""Fixes thumbnail file attachments across the gambling cog."""
 """
 Emerald's Killfeed - ELITE GAMBLING SYSTEM v5.0 (SUPREMACY)
 Advanced animated casino with interactive views, premium integration
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class SlotsView(discord.ui.View):
     """Interactive slots view with spin button"""
-    
+
     def __init__(self, gambling_cog, ctx, bet_amount):
         super().__init__(timeout=60)
         self.gambling_cog = gambling_cog
@@ -32,7 +32,7 @@ class SlotsView(discord.ui.View):
         if self.spinning:
             await interaction.response.send_message("⚠️ Reels already spinning!", ephemeral=True)
             return
-            
+
         if interaction.user.id != self.ctx.user.id:
             await interaction.response.send_message("❌ Only the bettor can spin!", ephemeral=True)
             return
@@ -46,7 +46,7 @@ class SlotsView(discord.ui.View):
 
 class BlackjackView(discord.ui.View):
     """Interactive blackjack view with game buttons"""
-    
+
     def __init__(self, gambling_cog, ctx, bet_amount, player_cards, dealer_cards):
         super().__init__(timeout=120)
         self.gambling_cog = gambling_cog
@@ -85,7 +85,7 @@ class BlackjackView(discord.ui.View):
 
 class RouletteView(discord.ui.View):
     """Interactive roulette view with betting options"""
-    
+
     def __init__(self, gambling_cog, ctx, bet_amount, bet_choice):
         super().__init__(timeout=60)
         self.gambling_cog = gambling_cog
@@ -99,7 +99,7 @@ class RouletteView(discord.ui.View):
         if self.spinning:
             await interaction.response.send_message("⚠️ Wheel already spinning!", ephemeral=True)
             return
-            
+
         if interaction.user.id != self.ctx.user.id:
             await interaction.response.send_message("❌ Only the bettor can spin!", ephemeral=True)
             return
@@ -209,7 +209,7 @@ class Gambling(commands.Cog):
         """Generate weighted random slot results"""
         symbols = list(self.slot_symbols.keys())
         weights = [self.slot_symbols[symbol]['weight'] for symbol in symbols]
-        
+
         return [random.choices(symbols, weights=weights)[0] for _ in range(3)]
 
     def calculate_slot_payout(self, reels: List[str], bet: int) -> tuple[int, str]:
@@ -232,10 +232,10 @@ class Gambling(commands.Cog):
         """Draw a playing card with suit, face, and value"""
         values = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]  # 11 = Ace
         suits = ['♠️', '♥️', '♦️', '♣️']
-        
+
         value = random.choice(values)
         suit = random.choice(suits)
-        
+
         if value == 11:
             return ("A", suit, 11)
         elif value == 10:
@@ -276,9 +276,9 @@ class Gambling(commands.Cog):
                 )
                 embed.set_thumbnail(url="attachment://Gamble.png")
                 embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
-                
-                file = discord.File('assets/Gamble.png', filename='Gamble.png')
-                await ctx.respond(embed=embed, file=file, ephemeral=True)
+
+                gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
+                await ctx.respond(embed=embed, file=gamble_file, ephemeral=True)
                 return
 
             # Validate bet amount
@@ -315,10 +315,10 @@ class Gambling(commands.Cog):
                 embed.set_thumbnail(url="attachment://Gamble.png")
                 embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-                file = discord.File('assets/Gamble.png', filename='Gamble.png')
+                gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
                 view = SlotsView(self, ctx, bet)
 
-                await ctx.respond(embed=embed, file=file, view=view)
+                await ctx.respond(embed=embed, file=gamble_file, view=view)
 
         except Exception as e:
             logger.error(f"Failed to initialize slots: {e}")
@@ -349,7 +349,8 @@ class Gambling(commands.Cog):
                 embed.set_thumbnail(url="attachment://Gamble.png")
                 embed.set_footer(text="The reels of fate are spinning...")
 
-                await interaction.edit_original_response(embed=embed, view=None)
+                gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
+                await interaction.edit_original_response(embed=embed, file=gamble_file, view=None)
                 await asyncio.sleep(1.5)
 
             # Generate final results
@@ -407,7 +408,8 @@ class Gambling(commands.Cog):
             embed.set_thumbnail(url="attachment://Gamble.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await interaction.edit_original_response(embed=embed, view=None)
+            gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
+            await interaction.edit_original_response(embed=embed, file=gamble_file, view=None)
 
         except Exception as e:
             logger.error(f"Failed to execute animated slots: {e}")
@@ -445,17 +447,17 @@ class Gambling(commands.Cog):
 
             # Validate choice - support both dropdown choices and manual number input
             choice_lower = choice.lower().strip()
-            
+
             # Check if it's a valid color/type bet
             valid_type_bets = {'red', 'black', 'green', 'odd', 'even', 'low', 'high'}
-            
+
             # Check if it's a valid number (0-36)
             is_valid_number = False
             if choice_lower.isdigit():
                 num = int(choice_lower)
                 if 0 <= num <= 36:
                     is_valid_number = True
-            
+
             # Validate the choice
             if choice_lower not in valid_type_bets and not is_valid_number:
                 await ctx.respond(
@@ -481,7 +483,7 @@ class Gambling(commands.Cog):
 
                 # Create interactive roulette view
                 view = RouletteView(self, ctx, bet, choice_lower)
-                
+
                 embed = discord.Embed(
                     title="🎯 ELITE ROULETTE",
                     description=f"**Bet:** ${bet:,}\n**Choice:** {choice_lower.title()}\n\nClick **SPIN WHEEL** to begin!",
@@ -498,8 +500,9 @@ class Gambling(commands.Cog):
                     inline=True
                 )
                 embed.set_footer(text="🎯 Good luck! Click SPIN to play")
-                
-                await ctx.respond(embed=embed, view=view)
+
+                gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
+                await ctx.respond(embed=embed, file=gamble_file, view=view)
 
         except Exception as e:
             logger.error(f"Failed to initialize roulette: {e}")
@@ -532,7 +535,8 @@ class Gambling(commands.Cog):
                 embed.set_thumbnail(url="attachment://Gamble.png")
                 embed.set_footer(text="The wheel determines your fate...")
 
-                await interaction.edit_original_response(embed=embed, view=None)
+                gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
+                await interaction.edit_original_response(embed=embed, file=gamble_file, view=None)
                 await asyncio.sleep(1.2)
 
             # Generate result
@@ -624,7 +628,8 @@ class Gambling(commands.Cog):
             embed.set_thumbnail(url="attachment://Gamble.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await interaction.edit_original_response(embed=embed, view=None)
+            gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
+            await interaction.edit_original_response(embed=embed, file=gamble_file, view=None)
 
         except Exception as e:
             logger.error(f"Failed to execute roulette: {e}")
@@ -705,10 +710,10 @@ class Gambling(commands.Cog):
                 embed.set_thumbnail(url="attachment://Gamble.png")
                 embed.set_footer(text="Choose your action: Hit, Stand, or Double")
 
-                file = discord.File('assets/Gamble.png', filename='Gamble.png')
+                gamble_file = discord.File('./assets/Gamble.png', filename='Gamble.png')
                 view = BlackjackView(self, ctx, bet, player_cards, dealer_cards)
 
-                await ctx.respond(embed=embed, file=file, view=view)
+                await ctx.respond(embed=embed, file=gamble_file, view=view)
 
         except Exception as e:
             logger.error(f"Failed to initialize blackjack: {e}")
@@ -720,9 +725,9 @@ class Gambling(commands.Cog):
             # Draw new card
             new_card = self.draw_card()
             view.player_cards.append(new_card)
-            
+
             player_total = self.calculate_hand_value(view.player_cards)
-            
+
             # Update display
             player_display = ' '.join(self.format_cards(view.player_cards))
             dealer_display = f"{self.format_cards(view.dealer_cards)[0]} 🎴"
@@ -756,177 +761,4 @@ class Gambling(commands.Cog):
         """Handle blackjack stand action"""
         try:
             view.game_over = True
-            view.clear_items()
-            await self._blackjack_finish_game_from_view(interaction, view, "stand")
-
-        except Exception as e:
-            logger.error(f"Blackjack stand error: {e}")
-
-    async def _blackjack_double(self, interaction: discord.Interaction, view: BlackjackView):
-        """Handle blackjack double down"""
-        try:
-            # Check if user has enough for double
-            guild_id = interaction.guild.id
-            discord_id = interaction.user.id
-            
-            wallet = await self.bot.db_manager.get_wallet(guild_id, discord_id)
-            if wallet['balance'] < view.bet_amount:
-                await interaction.followup.send("❌ Insufficient funds to double down!", ephemeral=True)
-                return
-
-            # Deduct additional bet
-            await self.bot.db_manager.update_wallet(guild_id, discord_id, -view.bet_amount, "gambling_blackjack")
-            view.bet_amount *= 2
-
-            # Draw one card and end turn
-            new_card = self.draw_card()
-            view.player_cards.append(new_card)
-            view.game_over = True
-            view.clear_items()
-
-            await self._blackjack_finish_game_from_view(interaction, view, "double")
-
-        except Exception as e:
-            logger.error(f"Blackjack double error: {e}")
-
-    async def _blackjack_finish_game_from_view(self, interaction: discord.Interaction, view: BlackjackView, action: str):
-        """Finish blackjack game from view interaction"""
-        try:
-            # Dealer plays
-            while self.calculate_hand_value(view.dealer_cards) < 17:
-                view.dealer_cards.append(self.draw_card())
-
-            player_total = self.calculate_hand_value(view.player_cards)
-            dealer_total = self.calculate_hand_value(view.dealer_cards)
-
-            # Determine winner
-            winnings = 0
-            status = ""
-
-            if player_total > 21:
-                status = "💥 BUST! You lose!"
-            elif dealer_total > 21:
-                winnings = view.bet_amount * 2
-                status = "🎉 Dealer BUST! You win!"
-            elif player_total == 21 and len(view.player_cards) == 2:
-                winnings = int(view.bet_amount * 2.5)
-                status = "🃏 BLACKJACK! You win!"
-            elif player_total > dealer_total:
-                winnings = view.bet_amount * 2
-                status = "🎉 You win!"
-            elif dealer_total > player_total:
-                status = "💸 Dealer wins!"
-            else:
-                winnings = view.bet_amount
-                status = "🤝 Push! Tie game!"
-
-            # Update wallet
-            if winnings > 0:
-                await self.bot.db_manager.update_wallet(interaction.guild.id, interaction.user.id, winnings, "gambling_blackjack")
-
-            # Create final embed
-            net_result = winnings - view.bet_amount
-            updated_wallet = await self.bot.db_manager.get_wallet(interaction.guild.id, interaction.user.id)
-
-            embed = discord.Embed(
-                title="🃏 EMERALD BLACKJACK - RESULT",
-                color=0x00d38a if winnings > 0 else 0xff5e5e
-            )
-
-            player_display = ' '.join(self.format_cards(view.player_cards))
-            dealer_display = ' '.join(self.format_cards(view.dealer_cards))
-
-            embed.add_field(
-                name="🃏 Final Hands",
-                value=f"**You:** {player_display} (Total: {player_total})\n**Dealer:** {dealer_display} (Total: {dealer_total})",
-                inline=False
-            )
-
-            embed.add_field(name="🎯 Result", value=status, inline=True)
-            embed.add_field(name="💰 Net", value=f"${net_result:+,}", inline=True)
-            embed.add_field(name="💳 Balance", value=f"${updated_wallet['balance']:,}", inline=True)
-
-            # Add themed message
-            themed_msg = random.choice(self.blackjack_messages)
-            embed.add_field(name="⚔️ Combat Log", value=f"*{themed_msg}*", inline=False)
-
-            embed.set_thumbnail(url="attachment://Gamble.png")
-            embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
-
-            await interaction.edit_original_response(embed=embed, view=None)
-
-            # Add wallet event
-            await self.add_wallet_event(
-                interaction.guild.id, interaction.user.id, net_result, "gambling_blackjack",
-                f"Blackjack: P:{player_total} D:{dealer_total} | Bet: ${view.bet_amount:,} | Win: ${winnings:,}"
-            )
-
-        except Exception as e:
-            logger.error(f"Blackjack finish error: {e}")
-
-    async def _blackjack_finish_game(self, ctx, bet: int, player_cards: List, dealer_cards: List, game_type: str):
-        """Finish immediate blackjack game (for natural 21s)"""
-        try:
-            player_total = self.calculate_hand_value(player_cards)
-            dealer_total = self.calculate_hand_value(dealer_cards)
-
-            player_blackjack = player_total == 21
-            dealer_blackjack = dealer_total == 21
-
-            winnings = 0
-            status = ""
-
-            if player_blackjack and not dealer_blackjack:
-                winnings = int(bet * 2.5)
-                status = "🃏 BLACKJACK! You win!"
-            elif dealer_blackjack and not player_blackjack:
-                status = "💸 Dealer Blackjack! You lose!"
-            elif player_blackjack and dealer_blackjack:
-                winnings = bet
-                status = "🤝 Push! Both Blackjack!"
-
-            if winnings > 0:
-                await self.bot.db_manager.update_wallet(ctx.guild.id, ctx.user.id, winnings, "gambling_blackjack")
-
-            net_result = winnings - bet
-            updated_wallet = await self.bot.db_manager.get_wallet(ctx.guild.id, ctx.user.id)
-
-            # Create result embed
-            embed = discord.Embed(
-                title="🃏 EMERALD BLACKJACK - RESULT",
-                color=0x00d38a if winnings > 0 else 0xff5e5e
-            )
-
-            player_display = ' '.join(self.format_cards(player_cards))
-            dealer_display = ' '.join(self.format_cards(dealer_cards))
-
-            embed.add_field(
-                name="🃏 Final Hands",
-                value=f"**You:** {player_display} (Total: {player_total})\n**Dealer:** {dealer_display} (Total: {dealer_total})",
-                inline=False
-            )
-
-            embed.add_field(name="🎯 Result", value=status, inline=True)
-            embed.add_field(name="💰 Net", value=f"${net_result:+,}", inline=True)
-            embed.add_field(name="💳 Balance", value=f"${updated_wallet['balance']:,}", inline=True)
-
-            themed_msg = random.choice(self.blackjack_messages)
-            embed.add_field(name="⚔️ Combat Log", value=f"*{themed_msg}*", inline=False)
-
-            embed.set_thumbnail(url="attachment://Gamble.png")
-            embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
-
-            file = discord.File('assets/Gamble.png', filename='Gamble.png')
-            await ctx.respond(embed=embed, file=file)
-
-            # Add wallet event
-            await self.add_wallet_event(
-                ctx.guild.id, ctx.user.id, net_result, "gambling_blackjack",
-                f"Blackjack: P:{player_total} D:{dealer_total} | Bet: ${bet:,} | Win: ${winnings:,}"
-            )
-
-        except Exception as e:
-            logger.error(f"Blackjack immediate finish error: {e}")
-
-def setup(bot):
-    bot.add_cog(Gambling(bot))
+            view.clear_items
