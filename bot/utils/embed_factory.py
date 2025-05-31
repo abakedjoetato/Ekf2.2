@@ -61,6 +61,46 @@ class EmbedFactory:
         'main': 'main.png'
     }
 
+    # Random atmospheric messages for killfeed embeds
+    KILLFEED_ATMOSPHERIC_MESSAGES = {
+        'kill': [
+            "> Another heartbeat silenced beneath the ash sky.",
+            "> No burial, no name — just silence where a soul once stood.",
+            "> Left no echo. Just scattered gear and cooling blood.",
+            "> Cut from the world like thread from a fraying coat.",
+            "> Hunger, cold, bullets — it could've been any of them. It was enough.",
+            "> Marked, hunted, forgotten. In that order.",
+            "> Their fire went out before they even knew they were burning.",
+            "> A last breath swallowed by wind and war.",
+            "> The price of survival paid in someone else's blood.",
+            "> The map didn't change. The player did."
+        ],
+        'suicide': [
+            "> Hit \"relocate\" like it was the snooze button. Got deleted.",
+            "> Tactical redeployment... into the abyss.",
+            "> Rage respawned and logic respawned with it.",
+            "> Wanted a reset. Got a reboot straight to the void.",
+            "> Pressed something. Paid everything.",
+            "> Who needs enemies when you've got bad decisions?",
+            "> Alt+F4'd themselves into Valhalla.",
+            "> Strategic death — poorly executed.",
+            "> Fast travel without a destination.",
+            "> Confirmed: the dead menu is not a safe zone."
+        ],
+        'fall': [
+            "> Thought they could make it. The ground disagreed.",
+            "> Airborne ambition. Terminal results.",
+            "> Tried flying. Landed poorly.",
+            "> Gravity called. They answered — headfirst.",
+            "> Believed in themselves. Gravity didn't.",
+            "> From rooftops to regret in under two seconds.",
+            "> The sky opened. The floor closed.",
+            "> Survival instincts took a coffee break.",
+            "> Feet first into a bad decision.",
+            "> Their plan had one fatal step too many."
+        ]
+    }
+
     # Themed messages for each embed type - EXPANDED POOLS
     THEMED_MESSAGES = {
         'connection_join': [
@@ -352,20 +392,29 @@ class EmbedFactory:
     async def build_killfeed_embed(cls, data: Dict[str, Any]) -> Tuple[discord.Embed, Optional[discord.File]]:
         """Build themed killfeed embed"""
         try:
+            import random
+            
             is_suicide = data.get('is_suicide', False)
             weapon = data.get('weapon', 'Unknown')
             
-            # Determine message type
+            # Determine message type and atmospheric message type
             if is_suicide:
                 if 'fall' in weapon.lower() or 'falling' in weapon.lower():
                     message_type = 'killfeed_fall'
+                    atmospheric_type = 'fall'
                 else:
                     message_type = 'killfeed_suicide'
+                    atmospheric_type = 'suicide'
             else:
                 message_type = 'killfeed_kill'
+                atmospheric_type = 'kill'
             
-            # Get themed message
-            title, description = cls._get_themed_message(message_type)
+            # Get themed message (use title only)
+            title, _ = cls._get_themed_message(message_type)
+            
+            # Get random atmospheric message
+            atmospheric_messages = cls.KILLFEED_ATMOSPHERIC_MESSAGES.get(atmospheric_type, [])
+            atmospheric_message = random.choice(atmospheric_messages) if atmospheric_messages else ""
             
             # Create embed with appropriate color based on death type
             if is_suicide:
@@ -377,7 +426,7 @@ class EmbedFactory:
                 color = 0xffd700  # Gold for kills
             embed = discord.Embed(
                 title=title,
-                description=description,
+                description=atmospheric_message,
                 color=color,
                 timestamp=datetime.now(timezone.utc)
             )
