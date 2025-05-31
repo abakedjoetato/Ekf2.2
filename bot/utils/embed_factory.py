@@ -264,7 +264,7 @@ class EmbedFactory:
                 embed.add_field(name="Cause", value=weapon, inline=True)
                 
                 # Use appropriate asset
-                asset_name = 'falling.png' if 'fall' in weapon.lower() else 'suicide.png'
+                asset_name = 'Falling.png' if 'fall' in weapon.lower() else 'Suicide.png'
             else:
                 # Kill embed
                 killer = data.get('killer', 'Unknown')
@@ -278,7 +278,7 @@ class EmbedFactory:
                 if distance and float(distance) > 0:
                     embed.add_field(name="Distance", value=f"{distance}m", inline=True)
                     
-                asset_name = 'killfeed.png'
+                asset_name = 'Killfeed.png'
             
             # Set thumbnail
             asset_path = cls.ASSETS_PATH / asset_name
