@@ -233,10 +233,13 @@ class Factions(commands.Cog):
                 inline=False
             )
 
+            faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
+
+
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=faction_file)
 
         except Exception as e:
             logger.error(f"Failed to create faction: {e}")
@@ -421,10 +424,11 @@ class Factions(commands.Cog):
                 inline=True
             )
 
+            faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=faction_file)
 
         except Exception as e:
             logger.error(f"Failed to join faction: {e}")
@@ -632,10 +636,13 @@ class Factions(commands.Cog):
                     inline=False
                 )
 
+            faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
+
+
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.followup.send(embed=embed)
+            await ctx.followup.send(embed=embed, file=faction_file)
 
         except Exception as e:
             logger.error(f"Failed to show faction info: {e}")
@@ -724,10 +731,13 @@ class Factions(commands.Cog):
                 inline=True
             )
 
+            faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
+
+
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.followup.send(embed=embed)
+            await ctx.followup.send(embed=embed, file=faction_file)
 
         except Exception as e:
             logger.error(f"Failed to show faction stats: {e}")
@@ -805,10 +815,13 @@ class Factions(commands.Cog):
                 inline=False
             )
 
+            faction_file = discord.File("./assets/Faction.png", filename="Faction.png")
+
+
             embed.set_thumbnail(url="attachment://Faction.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=faction_file)
 
         except Exception as e:
             logger.error(f"Failed to list factions: {e}")

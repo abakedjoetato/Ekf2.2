@@ -74,10 +74,13 @@ class Parsers(commands.Cog):
                 inline=False
             )
 
+            main_file = discord.File("./assets/main.png", filename="main.png")
+
+
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to check parser status: {e}")
@@ -209,10 +212,13 @@ class Parsers(commands.Cog):
                     inline=False
                 )
 
+            main_file = discord.File("./assets/main.png", filename="main.png")
+
+
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to show parser stats: {e}")

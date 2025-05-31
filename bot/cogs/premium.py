@@ -82,10 +82,13 @@ class Premium(commands.Cog):
                 inline=False
             )
 
+            main_file = discord.File("./assets/main.png", filename="main.png")
+
+
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to set home server: {e}")
@@ -163,10 +166,13 @@ class Premium(commands.Cog):
                     inline=False
                 )
 
+                main_file = discord.File("./assets/main.png", filename="main.png")
+
+
                 embed.set_thumbnail(url="attachment://main.png")
                 embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-                await ctx.respond(embed=embed)
+                await ctx.respond(embed=embed, file=main_file)
             else:
                 await ctx.respond("❌ Failed to assign premium status.", ephemeral=True)
 
@@ -231,10 +237,13 @@ class Premium(commands.Cog):
                     inline=False
                 )
 
+                main_file = discord.File("./assets/main.png", filename="main.png")
+
+
                 embed.set_thumbnail(url="attachment://main.png")
                 embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-                await ctx.respond(embed=embed)
+                await ctx.respond(embed=embed, file=main_file)
             else:
                 await ctx.respond("❌ Failed to revoke premium status.", ephemeral=True)
 
@@ -334,10 +343,13 @@ class Premium(commands.Cog):
                     inline=False
                 )
 
+            main_file = discord.File("./assets/main.png", filename="main.png")
+
+
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to check premium status: {e}")
@@ -412,10 +424,13 @@ class Premium(commands.Cog):
                 inline=False
             )
 
+            main_file = discord.File("./assets/main.png", filename="main.png")
+
+
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
             # Schedule automatic refresh of server data
             try:
@@ -496,10 +511,13 @@ class Premium(commands.Cog):
                     inline=False
                 )
 
+            main_file = discord.File("./assets/main.png", filename="main.png")
+
+
             embed.set_thumbnail(url="attachment://main.png")
             embed.set_footer(text="Powered by Discord.gg/EmeraldServers")
 
-            await ctx.respond(embed=embed)
+            await ctx.respond(embed=embed, file=main_file)
 
         except Exception as e:
             logger.error(f"Failed to list servers: {e}")
